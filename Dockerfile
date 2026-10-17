@@ -18,7 +18,7 @@ COPY go.mod go.sum* ./
 RUN go mod download
 COPY cmd/ cmd/
 COPY internal/ internal/
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" -o /zahrada ./cmd/server/ \
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w -X github.com/qwerin/zahrada/internal/api.Version=${VERSION}" -o /zahrada ./cmd/server/ \
  && mkdir -p /data
 
 # ── Stage 3: runtime ─────────────────────────────────────────────────────────
