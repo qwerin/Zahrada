@@ -1,0 +1,11 @@
+.git
+.github
+bin
+data
+*.db
+*.db-*
+.env
+.env.*
+web/node_modules
+web/dist
+docs

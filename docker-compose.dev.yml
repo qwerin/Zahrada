@@ -1,0 +1,11 @@
+# Lokální vývoj s vlastním buildem image (místo stahování z GHCR):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+services:
+  app:
+    image: zahrada:dev
+    pull_policy: build
+    build:
+      context: .
+      args:
+        VERSION: local

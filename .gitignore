@@ -1,0 +1,30 @@
+# Binárky
+/bin/
+/zahrada
+
+# SQLite databáze
+*.db
+*.db-shm
+*.db-wal
+
+# Data (ZAHRADA_DATA_DIR)
+/data/
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Env soubory (obsahují tajemství)
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code lokální stav
+.claude/worktrees/
+.claude/settings.local.json
+
+openapi.json
+coverage.out

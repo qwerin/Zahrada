@@ -1,0 +1,49 @@
+# Traefik overlay — v Portaineru ho přidej jako další compose soubor (Additional paths).
+#
+# Proměnné stacku (Portainer → Environment variables):
+#   DOMAIN          = zahrada.example.cz        (dev: zahrada-dev.example.cz)
+#   ROUTER          = zahrada                   (dev: zahrada-dev) — název routeru v Traefiku,
+#                                                musí být unikátní, když běží dev i prod na stejném Traefiku
+#   CERT_RESOLVER   = letsencrypt
+#   TRAEFIK_NETWORK = proxy
+#
+# Aplikace pak NENÍ publikovaná na portu hostitele (jen přes Traefik s HTTPS).
+# Ověření: docker compose -f docker-compose.yml -f docker-compose.traefik.yml config
+# nesmí u služby app vypsat "ports" (vyžaduje Docker Compose ≥ 2.24 kvůli !reset).
+
+services:
+  db:
+    networks:
+      - internal
+
+  app:
+    ports: !reset []
+    environment:
+      ZAHRADA_PUBLIC_URL: https://${DOMAIN:?Nastav DOMAIN}
+      ZAHRADA_SECURE_COOKIES: "true"
+      # Traefik je jediný, kdo se k aplikaci dostane, proto se jeho X-Forwarded-* z privátních sítí věří.
+      ZAHRADA_TRUSTED_PROXIES: ${ZAHRADA_TRUSTED_PROXIES:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+    networks:
+      - internal
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      # kontejner je ve dvou sítích — Traefik musí mluvit přes svou, jinak občas 502/504
+      - "traefik.docker.network=${TRAEFIK_NETWORK:?Nastav TRAEFIK_NETWORK}"
+      - "traefik.http.routers.${ROUTER:-zahrada}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${ROUTER:-zahrada}.entrypoints=websecure"
+      - "traefik.http.routers.${ROUTER:-zahrada}.tls.certresolver=${CERT_RESOLVER:?Nastav CERT_RESOLVER}"
+      - "traefik.http.services.${ROUTER:-zahrada}.loadbalancer.server.port=8080"
+      # HTTP → HTTPS
+      - "traefik.http.routers.${ROUTER:-zahrada}-http.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${ROUTER:-zahrada}-http.entrypoints=web"
+      - "traefik.http.routers.${ROUTER:-zahrada}-http.middlewares=${ROUTER:-zahrada}-https"
+      - "traefik.http.middlewares.${ROUTER:-zahrada}-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.${ROUTER:-zahrada}-https.redirectscheme.permanent=true"
+
+networks:
+  internal:
+    driver: bridge
+  traefik:
+    name: ${TRAEFIK_NETWORK}
+    external: true

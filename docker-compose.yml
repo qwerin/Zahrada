@@ -1,0 +1,71 @@
+# Základní stack: PostgreSQL + aplikace z hotového image (CI ho staví a nahrává do GHCR).
+# Lokálně se vlastním buildem:  docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# Portainer + Traefik: přidej docker-compose.traefik.yml jako další soubor (viz README).
+
+services:
+  db:
+    image: postgres:17.11-alpine3.24@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zahrada
+      POSTGRES_USER: zahrada
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Nastav POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zahrada"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    # dev stack: APP_TAG=main (každý push do main), produkce: APP_TAG=latest (jen release tagy v*)
+    # nebo pevná verze APP_TAG=1.4.0
+    image: ${APP_IMAGE:-ghcr.io/qwerin/zahrada}:${APP_TAG:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      # Výchozí jen localhost (před aplikaci patří reverzní proxy s HTTPS).
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:8080"
+    environment:
+      ZAHRADA_DB_DRIVER: postgres
+      ZAHRADA_DB_DSN: >-
+        host=db
+        user=zahrada
+        password=${POSTGRES_PASSWORD}
+        dbname=zahrada
+        sslmode=disable
+      ZAHRADA_STATIC_DIR: /app/dist
+      ZAHRADA_DATA_DIR: /data
+      ZAHRADA_TIMEZONE: ${ZAHRADA_TIMEZONE:-Europe/Prague}
+      ZAHRADA_PUBLIC_URL: ${ZAHRADA_PUBLIC_URL:-http://localhost:8080}
+      # Proměnné níže začne aplikace číst ve fázi F0 (převzato z NanoFaktury) — jsou tu předem,
+      # aby se compose v Portaineru nemusel měnit. Seznam a význam: docs/SPEC.md §5.
+      ZAHRADA_SECRET_KEY: ${ZAHRADA_SECRET_KEY:-}
+      ZAHRADA_SETUP_TOKEN: ${ZAHRADA_SETUP_TOKEN:-}
+      ZAHRADA_ADMIN_EMAILS: ${ZAHRADA_ADMIN_EMAILS:-}
+      ZAHRADA_ALLOW_SIGNUP: ${ZAHRADA_ALLOW_SIGNUP:-}
+      ZAHRADA_SECURE_COOKIES: ${ZAHRADA_SECURE_COOKIES:-}
+      ZAHRADA_TRUSTED_PROXIES: ${ZAHRADA_TRUSTED_PROXIES:-}
+      ZAHRADA_SMTP_HOST: ${ZAHRADA_SMTP_HOST:-}
+      ZAHRADA_SMTP_PORT: ${ZAHRADA_SMTP_PORT:-587}
+      ZAHRADA_SMTP_TLS: ${ZAHRADA_SMTP_TLS:-starttls}
+      ZAHRADA_SMTP_USER: ${ZAHRADA_SMTP_USER:-}
+      ZAHRADA_SMTP_PASSWORD: ${ZAHRADA_SMTP_PASSWORD:-}
+      ZAHRADA_MAIL_FROM: ${ZAHRADA_MAIL_FROM:-}
+      ZAHRADA_DB_LOG: ${ZAHRADA_DB_LOG:-}
+    volumes:
+      - appdata:/data
+    healthcheck:
+      test: ["CMD", "/app/zahrada", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  appdata:
