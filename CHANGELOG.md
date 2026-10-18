@@ -28,7 +28,7 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 
 ### Dokumenty a fotky
 - **Dokumenty k zakázce** — v detailu zakázky nahrajete smlouvy, výkresy, plány výsadby nebo rozpočty: PDF, Word, Excel, OpenDocument, TXT i CSV. Fotky mají vlastní sekci.
-- **Fotky ze zakázek** — vedoucí je přidává v detailu zakázky, dodavatel v *Moje práce* u každé své zakázky (*Fotky z práce*). Na telefonu se rovnou otevře fotoaparát. U fotky je vidět, kdo ji nahrál a kdy.
+- **Fotky ze zakázek** — vedoucí je přidává v detailu zakázky, dodavatel v *Moje práce* u každé své zakázky (*Fotky z práce*). Tlačítko *Vyfotit* otevře na telefonu rovnou fotoaparát, *Z galerie* nahraje i víc už pořízených fotek najednou. U fotky je vidět, kdo ji nahrál a kdy.
 
 ### AI asistent (MCP)
 - **Připojení Claude k Zahradě** — v *Nastavení → API tokeny* najdete adresu pro připojení AI asistenta. V claude.ai ji přidáte jako vlastní konektor a jen se přihlásíte, token není potřeba. Claude Code a další klienti použijí API token, příkaz i s ním vám po vytvoření tokenu nabídneme.

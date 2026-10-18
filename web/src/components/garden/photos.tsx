@@ -1,16 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
-import { CameraIcon } from 'lucide-react'
+import { CameraIcon, ImagesIcon } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'sonner'
 import { photoUrl, quoteQueries, useUploadJobPhoto } from '@/api/queries/garden'
 import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/lib/date'
 
-/** Fotky zakázky: mřížka náhledů + tlačítko Vyfotit/Přidat (na mobilu otevře fotoaparát). */
+/**
+ * Fotky zakázky: mřížka náhledů + dvě tlačítka. „Vyfotit“ otevře na mobilu rovnou fotoaparát
+ * (capture), „Z galerie“ výběr existujících fotek — capture by na Androidu galerii schovalo.
+ */
 export function JobPhotos({ slug, jobId, asContractor, canUpload = true }: { slug: string; jobId: number; asContractor: boolean; canUpload?: boolean }) {
   const q = useQuery(asContractor ? quoteQueries.myJobPhotos(slug, jobId) : quoteQueries.jobPhotos(slug, jobId))
   const upload = useUploadJobPhoto(slug, jobId, asContractor)
-  const input = useRef<HTMLInputElement>(null)
+  const camera = useRef<HTMLInputElement>(null)
+  const gallery = useRef<HTMLInputElement>(null)
   const onFiles = async (files: FileList | null) => {
     if (!files?.length) return
     for (const f of Array.from(files)) {
@@ -22,16 +26,20 @@ export function JobPhotos({ slug, jobId, asContractor, canUpload = true }: { slu
       }
     }
     toast.success(files.length === 1 ? 'Fotka nahrána' : `Nahráno ${files.length} fotek`)
-    if (input.current) input.current.value = ''
+    for (const i of [camera.current, gallery.current]) if (i) i.value = ''
   }
   const photos = q.data ?? []
   return (
     <div className="grid gap-2">
       {canUpload && (
-        <div>
-          <input ref={input} type="file" accept="image/*" capture="environment" multiple hidden onChange={(e) => void onFiles(e.target.files)} />
-          <Button size="sm" variant="outline" disabled={upload.isPending} onClick={() => input.current?.click()}>
-            <CameraIcon data-icon="inline-start" /> {upload.isPending ? 'Nahrávám…' : 'Vyfotit / přidat fotky'}
+        <div className="flex flex-wrap gap-2">
+          <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={(e) => void onFiles(e.target.files)} />
+          <input ref={gallery} type="file" accept="image/*" multiple hidden onChange={(e) => void onFiles(e.target.files)} />
+          <Button size="sm" variant="outline" disabled={upload.isPending} onClick={() => camera.current?.click()}>
+            <CameraIcon data-icon="inline-start" /> {upload.isPending ? 'Nahrávám…' : 'Vyfotit'}
+          </Button>
+          <Button size="sm" variant="outline" disabled={upload.isPending} onClick={() => gallery.current?.click()}>
+            <ImagesIcon data-icon="inline-start" /> Z galerie
           </Button>
         </div>
       )}
