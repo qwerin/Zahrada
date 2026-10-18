@@ -13,7 +13,7 @@ func All() []any {
 		&PasswordReset{}, &EmailVerification{}, &RecoveryCode{}, &WebAuthnCredential{}, &AuthChallenge{},
 		&Invitation{}, &Attachment{},
 		&Event{}, &Todo{}, &Webhook{}, &WebhookDelivery{},
-		&Client{}, &Site{}, &Contractor{}, &Job{}, &JobContractor{}, &AttendanceEntry{},
+		&Client{}, &Site{}, &Contractor{}, &Job{}, &JobContractor{}, &AttendanceEntry{}, &ContractorPayment{},
 		&PriceItem{}, &Quote{}, &QuoteItem{},
 		&OAuthClient{}, &OAuthCode{}, &OAuthGrant{},
 	}

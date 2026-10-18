@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import {
   gardenQueries,
+  paymentQueries,
   useClockIn,
   useClockOut,
   useDeleteMyAttendance,
@@ -14,6 +15,7 @@ import {
 import type { AttendanceEntry } from '@/api/types'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
 import { JobPhotos } from '@/components/garden/photos'
+import { BalanceLine, PaymentList } from '@/components/garden/payments'
 import { attendanceStatusLabels, attendanceStatusTone, currentMonth, formatMinutes, monthLabel, shiftMonth } from '@/components/garden/labels'
 import { PageBody, PageHeader } from '@/components/page-header'
 import { PageError } from '@/components/page-states'
@@ -39,6 +41,7 @@ function MyWorkPage() {
   const jobs = useQuery(gardenQueries.meJobs(slug))
   const [month, setMonth] = useState(currentMonth())
   const entries = useQuery(gardenQueries.meAttendance(slug, month))
+  const payments = useQuery(paymentQueries.mine(slug))
   const clockIn = useClockIn(slug)
   const clockOut = useClockOut(slug)
   const submit = useSubmitMyAttendance(slug)
@@ -186,6 +189,17 @@ function MyWorkPage() {
             ))}
           </CardContent>
         </Card>
+        {payments.data && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Zálohy a výplaty</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <BalanceLine balance={payments.data.balance} />
+              <PaymentList data={payments.data} />
+            </CardContent>
+          </Card>
+        )}
       </PageBody>
       {editing && <MyEntryDialog entry={editing === 'new' ? null : editing} today={me.data?.today} onClose={() => setEditing(null)} />}
     </>

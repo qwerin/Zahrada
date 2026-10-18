@@ -330,6 +330,26 @@ export interface paths {
         patch: operations["patch-api-accounts-by-slug-clients-by-id"];
         trace?: never;
     };
+    "/api/accounts/{slug}/contractor-payments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete API accounts by slug contractor payments by ID
+         * @description Allowed roles: owner, admin, member.
+         */
+        delete: operations["delete-api-accounts-by-slug-contractor-payments-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{slug}/contractors": {
         parameters: {
             query?: never;
@@ -390,6 +410,27 @@ export interface paths {
          * @description Allowed roles: owner, admin.
          */
         post: operations["post-api-accounts-by-slug-contractors-by-id-invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/contractors/{id}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API accounts by slug contractors by ID payments */
+        get: operations["get-api-accounts-by-slug-contractors-by-id-payments"];
+        put?: never;
+        /**
+         * Post API accounts by slug contractors by ID payments
+         * @description Allowed roles: owner, admin, member.
+         */
+        post: operations["post-api-accounts-by-slug-contractors-by-id-payments"];
         delete?: never;
         options?: never;
         head?: never;
@@ -760,6 +801,26 @@ export interface paths {
          * @description Allowed roles: owner, admin, accountant, member, contractor.
          */
         post: operations["post-api-accounts-by-slug-me-jobs-by-id-photos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/me/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get API accounts by slug me payments
+         * @description Allowed roles: owner, admin, accountant, member, contractor.
+         */
+        get: operations["get-api-accounts-by-slug-me-payments"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1874,6 +1935,16 @@ export interface components {
             through: string;
         };
         AttendanceContractorSummary: {
+            /**
+             * Format: int64
+             * @description Advances paid in the month
+             */
+            advances: number;
+            /**
+             * Format: int64
+             * @description Still owed as of the month end (all months, approved entries)
+             */
+            balance: number;
             /** Format: int64 */
             contractor_id: number;
             contractor_name: string;
@@ -1888,7 +1959,20 @@ export interface components {
             km_cost: number;
             /** Format: int64 */
             minutes: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Payouts paid in the month
+             */
+            payouts: number;
+            /**
+             * Format: int64
+             * @description Total − advances − payouts of the month
+             */
+            to_pay: number;
+            /**
+             * Format: int64
+             * @description Earned in the month (approved labour + km)
+             */
             total: number;
         };
         AttendanceEntry: {
@@ -2030,6 +2114,11 @@ export interface components {
             total_cost: number;
             /** Format: int64 */
             total_minutes: number;
+            /**
+             * Format: int64
+             * @description Sum of to_pay
+             */
+            total_to_pay: number;
         };
         AuthStatus: {
             has_users: boolean;
@@ -2273,6 +2362,24 @@ export interface components {
              */
             user_id?: number;
         };
+        ContractorBalance: {
+            /**
+             * Format: int64
+             * @description Positive = still to pay, negative = paid in advance
+             */
+            balance: number;
+            /** Format: int64 */
+            earned: number;
+            /** Format: int64 */
+            paid: number;
+            /**
+             * Format: int64
+             * @description Attendance entries not approved yet (not in Earned)
+             */
+            pending_count: number;
+            /** @description Balance as of this day (empty = all) */
+            through?: string;
+        };
         ContractorCreate: {
             color?: string;
             email?: string;
@@ -2317,6 +2424,50 @@ export interface components {
             note?: string;
             phone?: string;
             registration_no?: string;
+        };
+        ContractorPayment: {
+            /**
+             * Format: int64
+             * @description Haléře
+             */
+            amount: number;
+            /** Format: int64 */
+            contractor_id: number;
+            contractor_name?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description Not in a closed period */
+            editable: boolean;
+            /** Format: int64 */
+            id: number;
+            /**
+             * @description advance = záloha, payout = výplata/doplatek
+             * @enum {string}
+             */
+            kind: "advance" | "payout";
+            /** @enum {string} */
+            method: "cash" | "bank" | "";
+            note: string;
+            /** Format: date */
+            paid_on: string;
+        };
+        ContractorPaymentInput: {
+            /**
+             * Format: int64
+             * @description Haléře
+             */
+            amount: number;
+            /** @enum {string} */
+            kind: "advance" | "payout";
+            /** @enum {string} */
+            method?: "cash" | "bank" | "";
+            note?: string;
+            /** Format: date */
+            paid_on: string;
+        };
+        ContractorPayments: {
+            balance: components["schemas"]["ContractorBalance"];
+            items: components["schemas"]["ContractorPayment"][];
         };
         CreatedAPIToken: {
             /** Format: date-time */
@@ -4236,6 +4387,37 @@ export interface operations {
             };
         };
     };
+    "delete-api-accounts-by-slug-contractor-payments-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "get-api-accounts-by-slug-contractors": {
         parameters: {
             query?: {
@@ -4435,6 +4617,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Invitation"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-api-accounts-by-slug-contractors-by-id-payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractorPayments"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-contractors-by-id-payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractorPaymentInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractorPayment"];
                 };
             };
             /** @description Error */
@@ -5313,6 +5565,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Attachment"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-api-accounts-by-slug-me-payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractorPayments"];
                 };
             };
             /** @description Error */

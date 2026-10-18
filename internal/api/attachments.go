@@ -118,6 +118,32 @@ func sniffContentType(head []byte) string {
 	return ""
 }
 
+// documentContentType recognises office documents and plain text by their
+// content and extension (ZIP-based OOXML/ODF, legacy OLE .doc/.xls, UTF-8 text).
+func documentContentType(head []byte, filename string) string {
+	ext := strings.ToLower(path.Ext(filename))
+	zipTypes := map[string]string{
+		".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+		".odt":  "application/vnd.oasis.opendocument.text",
+		".ods":  "application/vnd.oasis.opendocument.spreadsheet",
+	}
+	oleTypes := map[string]string{".doc": "application/msword", ".xls": "application/vnd.ms-excel"}
+	switch {
+	case bytes.HasPrefix(head, []byte("PK\x03\x04")):
+		return zipTypes[ext]
+	case bytes.HasPrefix(head, []byte("\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1")):
+		return oleTypes[ext]
+	case (ext == ".txt" || ext == ".csv") && strings.HasPrefix(http.DetectContentType(head), "text/plain"):
+		if ext == ".csv" {
+			return "text/csv"
+		}
+		return "text/plain"
+	}
+	return ""
+}
+
 // cleanFilename keeps the base name without control characters, max 200 runes.
 func cleanFilename(name string) string {
 	name = path.Base(strings.ReplaceAll(name, "\\", "/"))
@@ -205,8 +231,11 @@ func (s *server) storeUpload(ctx context.Context, f huma.FormFile, ownerType str
 		return nil, huma.Error400BadRequest("cannot read file", err)
 	}
 	ct := sniffContentType(head[:n])
+	if ct == "" && ownerType == model.OwnerJob {
+		ct = documentContentType(head[:n], f.Filename) // job documents: also office files and plain text
+	}
 	if ct == "" {
-		return nil, huma.NewError(http.StatusUnsupportedMediaType, "unsupported file type (allowed: PDF, PNG, JPEG, WebP, HEIC, XML)")
+		return nil, huma.NewError(http.StatusUnsupportedMediaType, "unsupported file type (allowed: PDF, PNG, JPEG, WebP, HEIC, XML; for jobs also Word, Excel, OpenDocument, TXT, CSV)")
 	}
 	if imagesOnly && !strings.HasPrefix(ct, "image/") {
 		return nil, huma.NewError(http.StatusUnsupportedMediaType, "only photos are allowed (JPEG, PNG, WebP, HEIC)")

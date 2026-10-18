@@ -91,7 +91,11 @@ type AttendanceContractorSummary struct {
 	Cost           int64               `json:"cost"`
 	KM             int64               `json:"km"`
 	KmCost         int64               `json:"km_cost"`
-	Total          int64               `json:"total"`
+	Total          int64               `json:"total" doc:"Earned in the month (approved labour + km)"`
+	Advances       int64               `json:"advances" doc:"Advances paid in the month"`
+	Payouts        int64               `json:"payouts" doc:"Payouts paid in the month"`
+	ToPay          int64               `json:"to_pay" doc:"Total − advances − payouts of the month"`
+	Balance        int64               `json:"balance" doc:"Still owed as of the month end (all months, approved entries)"`
 	Jobs           []AttendanceJobLine `json:"jobs" nullable:"false"`
 }
 
@@ -105,6 +109,7 @@ type AttendanceSummary struct {
 	Contractors    []AttendanceContractorSummary `json:"contractors" nullable:"false"`
 	TotalMinutes   int                           `json:"total_minutes"`
 	TotalCost      int64                         `json:"total_cost"`
+	TotalToPay     int64                         `json:"total_to_pay" doc:"Sum of to_pay"`
 	RoundingMin    int                           `json:"rounding_min"`
 	RoundingMode   string                        `json:"rounding_mode"`
 	ApprovedOnlyOK bool                          `json:"approved_only" doc:"Always true: totals contain approved entries only"`
@@ -698,6 +703,38 @@ func (s *server) buildSummary(ctx context.Context, month string, contractorID ui
 		out.Contractors = append(out.Contractors, cs)
 		out.TotalMinutes += c.Minutes
 		out.TotalCost += c.Total
+	}
+	// payments of the month; contractors paid without approved work this month get a row too
+	pays, err := s.monthPayments(ctx, from, to, contractorID)
+	if err != nil {
+		return out, err
+	}
+	present := map[uint]bool{}
+	for _, c := range out.Contractors {
+		present[c.ContractorID] = true
+	}
+	var extra []uint
+	for id := range pays {
+		if !present[id] {
+			extra = append(extra, id)
+		}
+	}
+	if len(extra) > 0 {
+		names := s.namesOf(ctx, s.db.WithContext(ctx), &model.Contractor{}, extra)
+		for _, id := range extra {
+			out.Contractors = append(out.Contractors, AttendanceContractorSummary{ContractorID: id, ContractorName: names[id], Jobs: []AttendanceJobLine{}})
+		}
+	}
+	for i := range out.Contractors {
+		c := &out.Contractors[i]
+		c.Advances, c.Payouts = pays[c.ContractorID][model.PaymentAdvance], pays[c.ContractorID][model.PaymentPayout]
+		c.ToPay = c.Total - c.Advances - c.Payouts
+		bal, err := s.contractorBalance(ctx, s.db.WithContext(ctx), c.ContractorID, to)
+		if err != nil {
+			return out, err
+		}
+		c.Balance = bal.Balance
+		out.TotalToPay += c.ToPay
 	}
 	return out, nil
 }

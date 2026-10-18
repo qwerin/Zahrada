@@ -45,6 +45,10 @@ export interface AttachmentsProps {
   /** Text prázdného stavu. */
   emptyText?: string
   className?: string
+  /** Které přílohy zobrazit (např. u zakázky jen dokumenty, fotky má zvlášť). */
+  filter?: (a: Attachment) => boolean
+  /** Povolené typy souborů v dialogu výběru. */
+  accept?: string
 }
 
 interface UploadState {
@@ -65,6 +69,8 @@ export function Attachments({
   title = 'Přílohy',
   emptyText = 'Zatím žádné přílohy.',
   className,
+  filter,
+  accept = ATTACHMENT_ACCEPT,
 }: AttachmentsProps) {
   const { slug } = useCurrentAccount()
   const list = useQuery(attachmentQueries.list(slug, ownerType, ownerId))
@@ -78,7 +84,7 @@ export function Attachments({
   const startUploads = (files: FileList | File[] | null) => {
     if (!files) return
     for (const file of Array.from(files)) {
-      const problem = validateAttachmentFile(file)
+      const problem = validateAttachmentFile(file, ownerType === 'job')
       if (problem) {
         toast.error(problem)
         continue
@@ -112,7 +118,7 @@ export function Attachments({
     if (canEdit) startUploads(e.dataTransfer.files)
   }
 
-  const items = list.data ?? []
+  const items = (list.data ?? []).filter((a) => !filter || filter(a))
 
   return (
     <section
@@ -150,7 +156,7 @@ export function Attachments({
               ref={fileInput}
               type="file"
               multiple
-              accept={ATTACHMENT_ACCEPT}
+              accept={accept}
               className="sr-only"
               tabIndex={-1}
               aria-hidden="true"
@@ -231,7 +237,7 @@ export function Attachments({
           <span>
             <span className="font-medium text-foreground">Přetáhněte soubory sem</span> nebo klikněte pro výběr
           </span>
-          <span className="text-xs">PDF, obrázky nebo XML, max. 20 MB</span>
+          <span className="text-xs">{ownerType === 'job' ? 'PDF, obrázky, Word, Excel, OpenDocument, TXT nebo CSV' : 'PDF, obrázky nebo XML'}, max. 20 MB</span>
         </button>
       ) : null}
       {items.length === 0 && !list.isPending && !list.isError && uploads.length === 0 && (

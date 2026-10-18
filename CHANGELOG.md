@@ -9,7 +9,7 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 - Podporováno: odstavce, `###`, odrážky, **tučně**, *zvýraznění* (např. cesta v menu), `kód`, [odkazy](https://…). Nic dalšího.
 -->
 
-## 2026-10-18 · Kalkulace a nabídky, ceník, fotky a AI asistent
+## 2026-10-18 · Kalkulace a nabídky, ceník, zálohy dodavatelům, dokumenty a AI asistent
 
 ### Kalkulace → nabídka
 - **Kalkulace u zakázky** — v detailu zakázky klikněte na *Nová kalkulace*. Položky přidáte z ceníku, vložíte z textu, nebo napíšete ručně. Průběžně uvidíte cenu bez DPH i s DPH, náklady, marži a odhad hodin práce.
@@ -20,7 +20,14 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 - **Připravené práce a materiály** — v menu *Ceník* si uložte položky s nákupní i prodejní cenou, přirážkou, ztratným a pracností. Do kalkulace je pak přidáte jedním klepnutím.
 - **Vložení z textu** — celý ceník nebo položky kalkulace vložíte najednou: tabulku z chatu s Claude, řádky z Excelu nebo řádky typu „Výsadba keře 24 ks × 180 Kč“. Nadpisy se stanou oddíly. Nejlépe funguje tabulka se sloupci *Položka | Množství | Jednotka | Cena za j.*
 
-### Fotky
+### Zálohy dodavatelům
+- **Vyplacení zálohy** — v detailu dodavatele klikněte na *Vyplatit zálohu* (datum, částka, hotově nebo převodem). Zálohu zapíšete i přímo v *Docházce* u souhrnu dodavatele.
+- **Zůstatek vždy po ruce** — u dodavatele uvidíte, kolik odpracoval (jen schválená docházka), kolik už dostal a kolik mu zbývá doplatit. Tlačítko *Doplatit* předvyplní zbývající částku.
+- **V měsíčním souhrnu docházky** je u každého dodavatele vidět záloha, výplata a částka k výplatě za měsíc. Dodavatel vidí své zálohy a zůstatek v *Moje práce*.
+- **Uzavřený měsíc** — zálohy v uzavřeném období už nejde měnit ani mazat, stejně jako docházku.
+
+### Dokumenty a fotky
+- **Dokumenty k zakázce** — v detailu zakázky nahrajete smlouvy, výkresy, plány výsadby nebo rozpočty: PDF, Word, Excel, OpenDocument, TXT i CSV. Fotky mají vlastní sekci.
 - **Fotky ze zakázek** — vedoucí je přidává v detailu zakázky, dodavatel v *Moje práce* u každé své zakázky (*Fotky z práce*). Na telefonu se rovnou otevře fotoaparát. U fotky je vidět, kdo ji nahrál a kdy.
 
 ### AI asistent (MCP)

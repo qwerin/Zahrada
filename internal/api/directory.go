@@ -675,8 +675,12 @@ func (s *server) deleteContractor(ctx context.Context, in *idPath) (*NoContent, 
 		if err := tx.Model(&model.AttendanceEntry{}).Scopes(inAccount(ctx)).Where("contractor_id = ?", m.ID).Count(&n).Error; err != nil {
 			return dbErr(err, "attendance")
 		}
-		if n > 0 {
-			return conflict(CodeHasAttendance, "the contractor has attendance records; deactivate instead")
+		var np int64
+		if err := tx.Model(&model.ContractorPayment{}).Scopes(inAccount(ctx)).Where("contractor_id = ?", m.ID).Count(&np).Error; err != nil {
+			return dbErr(err, "payment")
+		}
+		if n > 0 || np > 0 {
+			return conflict(CodeHasAttendance, "the contractor has attendance or payments; deactivate instead")
 		}
 		if err := tx.Where("contractor_id = ?", m.ID).Delete(&model.JobContractor{}).Error; err != nil {
 			return dbErr(err, "job contractor")

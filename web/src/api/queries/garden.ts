@@ -6,6 +6,7 @@ import { api, unwrap } from '../client'
 import type {
   AttendanceInput,
   ClockOutInput,
+  ContractorPaymentInput,
   CreateClientInput,
   CreateContractorInput,
   CreateJobInput,
@@ -454,4 +455,37 @@ export function useUploadJobPhoto(slug: string, jobId: number, asContractor: boo
 export function photoUrl(slug: string, id: number, asContractor: boolean) {
   const s = encodeURIComponent(slug)
   return asContractor ? `/api/accounts/${s}/me/photos/${id}` : `/api/accounts/${s}/attachments/${id}/download?inline=true`
+}
+
+// ---- zálohy a výplaty dodavatelů ----
+
+export const paymentQueries = {
+  contractor: (slug: string, id: number) =>
+    queryOptions({
+      queryKey: [...k.contractors(slug), 'payments', id],
+      queryFn: () => unwrap(api.GET('/api/accounts/{slug}/contractors/{id}/payments', pathId(slug, id))),
+    }),
+  mine: (slug: string) =>
+    queryOptions({
+      queryKey: [...k.me(slug), 'payments'],
+      queryFn: () => unwrap(api.GET('/api/accounts/{slug}/me/payments', path(slug))),
+      retry: false,
+    }),
+}
+
+export function usePayContractor(slug: string, id: number) {
+  const inv = useInvalidate(slug)
+  return useMutation({
+    mutationFn: (body: ContractorPaymentInput) =>
+      unwrap(api.POST('/api/accounts/{slug}/contractors/{id}/payments', { ...pathId(slug, id), body })),
+    onSuccess: () => inv('contractors', 'attendance'),
+  })
+}
+
+export function useDeletePayment(slug: string) {
+  const inv = useInvalidate(slug)
+  return useMutation({
+    mutationFn: (id: number) => unwrap(api.DELETE('/api/accounts/{slug}/contractor-payments/{id}', pathId(slug, id))),
+    onSuccess: () => inv('contractors', 'attendance'),
+  })
 }

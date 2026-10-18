@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { gardenQueries, quoteQueries, useCreateQuote, useDeleteJob, useJobStatus, useUpdateJob } from '@/api/queries/garden'
 import type { Job, JobKind, JobStatus } from '@/api/types'
+import { Attachments } from '@/components/attachments/attachments'
+import { JOB_DOCUMENT_ACCEPT } from '@/components/attachments/files'
 import { HistorySection } from '@/components/events/timeline'
 import { JobPhotos } from '@/components/garden/photos'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
@@ -133,6 +135,19 @@ function JobPage() {
                   <StatusPill tone={quoteStatusTone[q.status]}>{quoteStatusLabels[q.status]}</StatusPill>
                 </Link>
               ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <Attachments
+                ownerType="job"
+                ownerId={j.id}
+                canEdit={canEdit}
+                title="Dokumenty"
+                emptyText="Smlouvy, výkresy, plány výsadby, rozpočty… (PDF, Word, Excel, obrázky)."
+                filter={(a) => !a.content_type.startsWith('image/')}
+                accept={JOB_DOCUMENT_ACCEPT}
+              />
             </CardContent>
           </Card>
           <Card>

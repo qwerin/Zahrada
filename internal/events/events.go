@@ -71,6 +71,7 @@ const (
 	AttendanceApproved  = "attendance.approved"
 	AttendanceRejected  = "attendance.rejected"
 	AttendanceClosed    = "attendance.closed"
+	ContractorPaid      = "contractor.paid"
 	WebhookFailed       = "webhook.failed"
 	WebhookDisabled     = "webhook.disabled"
 )
@@ -101,6 +102,7 @@ var Catalog = []CatalogEntry{
 	{AttendanceApproved, "Docházka schválena"},
 	{AttendanceRejected, "Docházka vrácena k opravě"},
 	{AttendanceClosed, "Docházka uzavřena"},
+	{ContractorPaid, "Dodavateli vyplacena záloha nebo doplatek"},
 	{WebhookFailed, "Webhook se nepodařilo doručit"},
 	{WebhookDisabled, "Webhook automaticky vypnut"},
 }

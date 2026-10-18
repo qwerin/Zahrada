@@ -101,6 +101,8 @@ var mcpTools = []mcpTool{
 
 	{Name: "list_contractors", Title: "Dodavatelé", Method: http.MethodGet, Path: "/contractors",
 		Description: "List contractors (people working for the firm) with hourly and per-km rates."},
+	{Name: "list_contractor_payments", Title: "Zálohy a výplaty dodavatele", Method: http.MethodGet, Path: "/contractors/{id}/payments",
+		Description: "Advances and payouts paid to a contractor, and the balance: approved attendance earnings minus everything paid (positive = still owed)."},
 
 	{Name: "list_price_items", Title: "Ceník", Method: http.MethodGet, Path: "/price-items",
 		Description: "Price list: work and material items with unit, purchase cost, sale price (sale_price), markup, waste and labour norm (hours per unit). Use these values when preparing a calculation."},

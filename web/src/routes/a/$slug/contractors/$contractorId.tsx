@@ -7,6 +7,7 @@ import { gardenQueries, useDeleteContractor, useInviteContractor, useUpdateContr
 import type { Contractor } from '@/api/types'
 import { HistorySection } from '@/components/events/timeline'
 import { FormGrid, TextAreaField, TextField } from '@/components/garden/form'
+import { ContractorPaymentsCard } from '@/components/garden/payments'
 import { PageBody, PageHeader, type PageAction } from '@/components/page-header'
 import { PageError } from '@/components/page-states'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
@@ -56,7 +57,10 @@ function ContractorPage() {
         actions={actions}
       />
       <PageBody className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        <ContractorForm key={c.updated_at} contractor={c} disabled={!canEdit} />
+        <div className="grid content-start gap-4">
+          <ContractorPaymentsCard slug={slug} contractorId={c.id} canEdit={canEdit} />
+          <ContractorForm key={c.updated_at} contractor={c} disabled={!canEdit} />
+        </div>
         <HistorySection subjectType="contractor" subjectId={c.id} />
       </PageBody>
       {inviting && <InviteDialog contractor={c} onClose={() => setInviting(false)} />}

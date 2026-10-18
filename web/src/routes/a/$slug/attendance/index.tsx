@@ -15,6 +15,7 @@ import {
 import type { AttendanceEntry } from '@/api/types'
 import { EmptyState } from '@/components/empty-state'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
+import { PayDialog } from '@/components/garden/payments'
 import {
   attendanceStatusLabels,
   attendanceStatusTone,
@@ -66,6 +67,7 @@ function AttendancePage() {
   const close = useCloseAttendance(slug)
   const [selected, setSelected] = useState<number[]>([])
   const [editing, setEditing] = useState<AttendanceEntry | 'new' | null>(null)
+  const [paying, setPaying] = useState<{ id: number; kind: 'advance' | 'payout'; amount?: number } | null>(null)
   const go = (patch: Partial<z.infer<typeof searchSchema>>) => {
     setSelected([])
     void navigate({ search: (p) => ({ ...p, ...patch }), replace: true })
@@ -146,8 +148,9 @@ function AttendancePage() {
             </Card>
             <Card>
               <CardContent className="py-3">
-                <p className="text-sm text-muted-foreground">K proplacení vč. cestovného</p>
+                <p className="text-sm text-muted-foreground">Odpracováno vč. cestovného</p>
                 <p className="text-xl font-semibold tabular-nums">{formatMoney(summary.data.total_cost)}</p>
+                <p className="text-xs text-muted-foreground">po zálohách k výplatě {formatMoney(summary.data.total_to_pay)}</p>
               </CardContent>
             </Card>
             <Card>
@@ -178,6 +181,22 @@ function AttendancePage() {
                     <span className="w-24 text-right tabular-nums">{formatMinutes(c.minutes)}</span>
                     <span className="w-28 text-right tabular-nums font-medium">{formatMoney(c.total)}</span>
                   </summary>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 pl-4 text-muted-foreground">
+                    {c.advances > 0 && <span>Zálohy {formatMoney(c.advances)}</span>}
+                    {c.payouts > 0 && <span>Vyplaceno {formatMoney(c.payouts)}</span>}
+                    <span className="font-medium text-foreground">K výplatě za měsíc {formatMoney(c.to_pay)}</span>
+                    <span>Celkový zůstatek {formatMoney(c.balance)}</span>
+                    {canEdit && !locked && (
+                      <Button size="sm" variant="outline" onClick={() => setPaying({ id: c.contractor_id, kind: 'advance' })}>
+                        Záloha
+                      </Button>
+                    )}
+                    {canEdit && !locked && c.balance > 0 && (
+                      <Button size="sm" variant="outline" onClick={() => setPaying({ id: c.contractor_id, kind: 'payout', amount: c.balance })}>
+                        Doplatit {formatMoney(c.balance)}
+                      </Button>
+                    )}
+                  </div>
                   <div className="mt-1 grid gap-0.5 pl-4 text-muted-foreground">
                     {c.jobs.map((j) => (
                       <div key={j.job_id} className="flex gap-3">
@@ -259,6 +278,7 @@ function AttendancePage() {
           <p className="text-xs text-muted-foreground">Docházka je uzavřená do {formatDate(account.data.attendance_locked_through)}.</p>
         )}
       </PageBody>
+      {paying && <PayDialog slug={slug} contractorId={paying.id} kind={paying.kind} suggested={paying.amount} onClose={() => setPaying(null)} />}
       {editing && <EntryDialog entry={editing === 'new' ? null : editing} defaultContractor={search.contractor} onClose={() => setEditing(null)} />}
     </>
   )

@@ -12,9 +12,10 @@ export const ATTACHMENT_ACCEPT = 'image/*,application/pdf,.pdf,.xml,.isdoc,text/
 export const RECEIPT_CAPTURE_ACCEPT = 'image/*,application/pdf'
 
 const ALLOWED_EXT = /\.(pdf|png|jpe?g|webp|heic|heif|xml|isdoc)$/i
+const DOCUMENT_EXT = /\.(docx?|xlsx?|pptx|odt|ods|txt|csv)$/i
 
 /** Chybová hláška pro nepovolený soubor, nebo `null`. Typ ověřuje definitivně až backend (podle obsahu). */
-export function validateAttachmentFile(file: { name: string; size: number; type: string }): string | null {
+export function validateAttachmentFile(file: { name: string; size: number; type: string }, documents = false): string | null {
   if (file.size === 0) return `Soubor „${file.name}“ je prázdný.`
   if (file.size > MAX_ATTACHMENT_BYTES) {
     return `Soubor „${file.name}“ je příliš velký (${formatFileSize(file.size)}). Maximum je 20 MB.`
@@ -24,8 +25,12 @@ export function validateAttachmentFile(file: { name: string; size: number; type:
     file.type === 'application/pdf' ||
     file.type === 'text/xml' ||
     file.type === 'application/xml' ||
-    ALLOWED_EXT.test(file.name)
-  if (!typeOk) return `Soubor „${file.name}“ nelze nahrát. Povolené jsou obrázky, PDF a XML.`
+    ALLOWED_EXT.test(file.name) ||
+    (documents && DOCUMENT_EXT.test(file.name))
+  if (!typeOk)
+    return documents
+      ? `Soubor „${file.name}“ nelze nahrát. Povolené jsou PDF, obrázky, Word, Excel, OpenDocument, TXT a CSV.`
+      : `Soubor „${file.name}“ nelze nahrát. Povolené jsou obrázky, PDF a XML.`
   return null
 }
 
@@ -36,6 +41,7 @@ export function attachmentKind(contentType: string, filename = ''): AttachmentKi
   const ct = contentType.toLowerCase()
   if (ct.startsWith('image/') || /\.(png|jpe?g|webp|gif|heic|heif)$/i.test(filename)) return 'image'
   if (ct === 'application/pdf' || /\.pdf$/i.test(filename)) return 'pdf'
+  if (/officedocument|opendocument|msword|ms-excel/.test(ct) || DOCUMENT_EXT.test(filename)) return 'other'
   if (ct.includes('xml') || /\.(xml|isdoc)$/i.test(filename)) return 'xml'
   return 'other'
 }
@@ -60,3 +66,7 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${sizeFmt.format(bytes / 1024)} kB`
   return `${sizeFmt.format(bytes / (1024 * 1024))} MB`
 }
+
+/** Dokumenty k zakázce: navíc Word, Excel, OpenDocument, TXT a CSV. */
+export const JOB_DOCUMENT_ACCEPT =
+  'application/pdf,.pdf,image/*,.heic,.heif,.doc,.docx,.xls,.xlsx,.pptx,.odt,.ods,.txt,.csv,.xml,text/plain,text/csv'

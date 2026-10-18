@@ -178,3 +178,25 @@ func (m *Job) BeforeSave(*gorm.DB) error {
 	m.SearchText = search.Text(m.SearchSource()...)
 	return nil
 }
+
+// Contractor payment kinds.
+const (
+	PaymentAdvance = "advance" // záloha
+	PaymentPayout  = "payout"  // výplata / doplatek
+)
+
+// ContractorPayment is money paid to a contractor (advance or payout). The
+// contractor's balance = approved attendance earnings − all payments (SPEC §4.8).
+type ContractorPayment struct {
+	ID           uint
+	AccountID    uint   `gorm:"not null;index"`
+	ContractorID uint   `gorm:"not null;index"`
+	Kind         string `gorm:"not null"`
+	PaidOn       string `gorm:"not null;index"` // YYYY-MM-DD
+	Amount       int64  `gorm:"not null"`       // haléře, > 0
+	Method       string // cash | bank
+	Note         string
+	CreatedBy    *uint
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
