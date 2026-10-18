@@ -29,7 +29,13 @@ function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Přehled" />
+      <PageHeader
+        title="Přehled"
+        actions={[
+          { label: 'Nová zakázka', icon: BriefcaseIcon, primary: true, render: <Link to="/a/$slug/jobs" params={{ slug }} search={{ new: 0 }} /> },
+          { label: 'Klienti', icon: UsersIcon, render: <Link to="/a/$slug/clients" params={{ slug }} /> },
+        ]}
+      />
       <PageBody className="grid gap-4">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Tile icon={BriefcaseIcon} label="Rozpracované zakázky" value={jobs.data?.total ?? '–'} to="/a/$slug/jobs" />
@@ -46,7 +52,7 @@ function Dashboard() {
               {jobs.data?.items.length === 0 && (
                 <div className="grid justify-items-start gap-2 text-sm text-muted-foreground">
                   Žádná zakázka není objednaná ani v realizaci.
-                  <ButtonLink to="/a/$slug/jobs" params={{ slug }} size="sm">Nová zakázka</ButtonLink>
+                  <ButtonLink to="/a/$slug/jobs" params={{ slug }} search={{ new: 0 }} size="sm">Nová zakázka</ButtonLink>
                 </div>
               )}
               {jobs.data?.items.map((j) => (

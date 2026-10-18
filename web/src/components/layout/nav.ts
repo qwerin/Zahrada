@@ -19,6 +19,7 @@ import {
 
 /** Položky, které na mobilu nejsou v tab baru — zobrazují se v menu „Více“ (na desktopu v sidebaru). */
 export const moreNav = [
+  { label: 'Klienti', to: '/a/$slug/clients', icon: UsersIcon },
   { label: 'Dodavatelé', to: '/a/$slug/contractors', icon: HardHatIcon },
   { label: 'Kalkulace', to: '/a/$slug/calc', icon: CalculatorIcon },
   { label: 'Úkoly', to: '/a/$slug/todos', icon: ListTodoIcon },
@@ -29,7 +30,6 @@ export const mainNav = [
   { label: 'Přehled', to: '/a/$slug/dashboard', icon: LayoutDashboardIcon },
   { label: 'Zakázky', to: '/a/$slug/jobs', icon: BriefcaseIcon },
   { label: 'Docházka', to: '/a/$slug/attendance', icon: ClockIcon },
-  { label: 'Klienti', to: '/a/$slug/clients', icon: UsersIcon },
   ...moreNav,
 ] as const
 

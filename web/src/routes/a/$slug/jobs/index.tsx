@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { BriefcaseIcon, ChevronRightIcon, PlusIcon, SearchIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { gardenQueries, useCreateJob } from '@/api/queries/garden'
+import { gardenQueries, useCreateClient, useCreateJob } from '@/api/queries/garden'
 import type { CreateJobInput, Job, JobKind } from '@/api/types'
 import { EmptyState } from '@/components/empty-state'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
@@ -136,27 +136,45 @@ function NewJobDialog({ clientId, onClose, onCreated }: { clientId?: number; onC
   const clients = useQuery(gardenQueries.clients(slug))
   const contractors = useQuery(gardenQueries.contractors(slug, 'true'))
   const create = useCreateJob(slug)
+  const createClient = useCreateClient(slug)
+  const [newClient, setNewClient] = useState({ name: '', phone: '', street: '', city: '' })
   const [f, setF] = useState({
     client_id: clientId ? String(clientId) : '', site_id: '', kind: 'realization' as JobKind, title: '',
     status: 'ordered' as CreateJobInput['status'], planned_from: '', planned_to: '', note: '', contractor_ids: [] as number[],
   })
   const client = useQuery({ ...gardenQueries.client(slug, Number(f.client_id) || 0), enabled: Number(f.client_id) > 0 })
+  const noClients = clients.data?.items.length === 0
+  const isNewClient = f.client_id === 'new' || (noClients && !f.client_id)
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value })
-  const submit = () =>
+  const submit = async () => {
+    let cid = Number(f.client_id)
+    let siteId = f.site_id ? Number(f.site_id) : undefined
+    if (isNewClient) {
+      // nový klient i se zahradou na jeho adrese, pak zakázka
+      const c = await createClient.mutateAsync({ name: newClient.name.trim(), kind: 'person', phone: newClient.phone, street: newClient.street, city: newClient.city })
+      cid = c.id
+      if (newClient.street || newClient.city) {
+        const { api, unwrap } = await import('@/api/client')
+        const site = await unwrap(api.POST('/api/accounts/{slug}/sites', { params: { path: { slug } }, body: { client_id: cid, name: 'Zahrada', street: newClient.street, city: newClient.city } }))
+        siteId = site.id
+      }
+    }
     create.mutate(
       {
-        client_id: Number(f.client_id), site_id: f.site_id ? Number(f.site_id) : undefined, kind: f.kind, title: f.title,
+        client_id: cid, site_id: siteId, kind: f.kind, title: f.title,
         status: f.status, planned_from: f.planned_from || undefined, planned_to: f.planned_to || undefined, note: f.note,
         contractor_ids: f.contractor_ids,
       },
       { onSuccess: (j) => { onClose(); onCreated(j.id) } },
     )
+  }
+  const canSubmit = f.title.trim() && (isNewClient ? newClient.name.trim() : f.client_id)
   return (
     <ResponsiveDialog
       open
       onOpenChange={(o) => !o && onClose()}
       title="Nová zakázka"
-      footer={<Button disabled={!f.client_id || !f.title.trim() || create.isPending} onClick={submit}>Vytvořit</Button>}
+      footer={<Button disabled={!canSubmit || create.isPending || createClient.isPending} onClick={() => void submit()}>Vytvořit</Button>}
     >
       <FormGrid>
         <SelectField
@@ -164,15 +182,28 @@ function NewJobDialog({ clientId, onClose, onCreated }: { clientId?: number; onC
           name="client_id"
           value={f.client_id}
           onChange={(e) => setF({ ...f, client_id: e.target.value, site_id: '' })}
-          options={[{ value: '', label: 'Vyberte klienta…' }, ...(clients.data?.items ?? []).map((c) => ({ value: String(c.id), label: c.name }))]}
+          options={[
+            { value: '', label: noClients ? 'Zatím žádní klienti' : 'Vyberte klienta…' },
+            { value: 'new', label: '+ Nový klient' },
+            ...(clients.data?.items ?? []).map((c) => ({ value: String(c.id), label: c.name })),
+          ]}
           className="sm:col-span-2"
         />
+        {isNewClient && (
+          <>
+            <TextField label="Jméno nového klienta" name="new_client_name" value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} autoFocus />
+            <TextField label="Telefon" name="new_client_phone" type="tel" value={newClient.phone} onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })} />
+            <TextField label="Ulice zahrady" name="new_client_street" value={newClient.street} onChange={(e) => setNewClient({ ...newClient, street: e.target.value })} />
+            <TextField label="Obec" name="new_client_city" value={newClient.city} onChange={(e) => setNewClient({ ...newClient, city: e.target.value })} />
+          </>
+        )}
         <SelectField
           label="Zahrada"
           name="site_id"
           value={f.site_id}
           onChange={set('site_id')}
-          options={[{ value: '', label: '—' }, ...(client.data?.sites ?? []).filter((s) => !s.archived).map((s) => ({ value: String(s.id), label: s.name }))]}
+          disabled={isNewClient}
+          options={[{ value: '', label: isNewClient ? 'Založí se z adresy' : '—' }, ...(client.data?.sites ?? []).filter((s) => !s.archived).map((s) => ({ value: String(s.id), label: s.name }))]}
         />
         <SelectField
           label="Druh"
