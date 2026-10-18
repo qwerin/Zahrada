@@ -33,6 +33,7 @@ const (
 	CodeOpenEntryPastDay         = "open_entry_past_day"
 	CodeNotContractor            = "not_contractor"
 	CodeJobNotAssigned           = "job_not_assigned"
+	CodeInvalidLink              = "invalid_link"
 	CodeAlreadyExists            = "already_exists"
 	CodeEmailTaken               = "email_taken"
 	CodeSignupDisabled           = "signup_disabled"

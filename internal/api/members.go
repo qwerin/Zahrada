@@ -22,6 +22,7 @@ type Member struct {
 	Email    string    `json:"email"`
 	Name     string    `json:"name"`
 	Role     string    `json:"role" enum:"owner,admin,accountant,member,contractor"`
+	LinkOnly bool      `json:"link_only,omitempty" doc:"Contractor without e-mail (signs in with a one-time link)"`
 	JoinedAt time.Time `json:"joined_at"`
 }
 
@@ -201,18 +202,23 @@ type memberRow struct {
 	UserID    uint
 	Email     string
 	Name      string
+	LinkOnly  bool
 	Role      string
 	CreatedAt time.Time
 }
 
 func (s *server) listMembers(ctx context.Context, in *struct{ PageParams }) (*Out[ListResponse[Member]], error) {
 	q := s.db.WithContext(ctx).Table("memberships").
-		Select("memberships.user_id, users.email, users.name, memberships.role, memberships.created_at").
+		Select("memberships.user_id, users.email, users.name, users.link_only, memberships.role, memberships.created_at").
 		Joins("JOIN users ON users.id = memberships.user_id").
 		Where("memberships.account_id = ?", auth.AccountFrom(ctx).ID).
 		Order("users.email")
 	return paginate(q, in.PageParams, func(r *memberRow) Member {
-		return Member{UserID: r.UserID, Email: r.Email, Name: r.Name, Role: r.Role, JoinedAt: r.CreatedAt}
+		email := r.Email
+		if r.LinkOnly {
+			email = ""
+		}
+		return Member{UserID: r.UserID, Email: email, Name: r.Name, Role: r.Role, LinkOnly: r.LinkOnly, JoinedAt: r.CreatedAt}
 	})
 }
 
@@ -245,7 +251,11 @@ func (s *server) memberOut(tx *gorm.DB, m *model.Membership) (Member, error) {
 	if err := tx.First(&u, m.UserID).Error; err != nil {
 		return Member{}, dbErr(err, "user")
 	}
-	return Member{UserID: u.ID, Email: u.Email, Name: u.Name, Role: m.Role, JoinedAt: m.CreatedAt}, nil
+	email := u.Email
+	if u.LinkOnly {
+		email = ""
+	}
+	return Member{UserID: u.ID, Email: email, Name: u.Name, Role: m.Role, LinkOnly: u.LinkOnly, JoinedAt: m.CreatedAt}, nil
 }
 
 func (s *server) patchMember(ctx context.Context, in *struct {

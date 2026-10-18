@@ -152,6 +152,7 @@ func New(db *gorm.DB, cfg config.Config, deps Deps) (http.Handler, huma.API) {
 	s.registerAttendance(account)
 	s.registerQuotes(account)
 	s.registerPayments(account)
+	s.registerLoginLinks(public, account)
 
 	router.Handle(mcpPath, s.mcpHandler(router, api))
 

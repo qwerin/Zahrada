@@ -416,6 +416,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{slug}/contractors/{id}/login-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post API accounts by slug contractors by ID login link
+         * @description Allowed roles: owner, admin.
+         */
+        post: operations["post-api-accounts-by-slug-contractors-by-id-login-link"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{slug}/contractors/{id}/payments": {
         parameters: {
             query?: never;
@@ -1418,6 +1438,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/login-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API auth login link */
+        post: operations["post-api-auth-login-link"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login/2fa": {
         parameters: {
             query?: never;
@@ -2349,6 +2386,11 @@ export interface components {
              * @description Haléře per km
              */
             km_rate: number;
+            /**
+             * @description How the contractor signs in: e-mail account, one-time links, or not at all
+             * @enum {string}
+             */
+            login: "email" | "link" | "none";
             name: string;
             note: string;
             phone: string;
@@ -2942,6 +2984,15 @@ export interface components {
             code: string;
             token: string;
         };
+        LoginLinkOut: {
+            /** Format: date-time */
+            expires_at: string;
+            /** @description Open on the contractor's phone (single use) */
+            url: string;
+        };
+        LoginLinkRequest: {
+            token: string;
+        };
         LoginRequest: {
             email: string;
             password: string;
@@ -3003,6 +3054,8 @@ export interface components {
             email: string;
             /** Format: date-time */
             joined_at: string;
+            /** @description Contractor without e-mail (signs in with a one-time link) */
+            link_only?: boolean;
             name: string;
             /** @enum {string} */
             role: "owner" | "admin" | "accountant" | "member" | "contractor";
@@ -3439,9 +3492,11 @@ export interface components {
             webauthn: components["schemas"]["WebAuthnKey"][];
         };
         User: {
+            /** @description Empty for link_only users */
             email: string;
             /** Format: int64 */
             id: number;
+            link_only?: boolean;
             name: string;
         };
         VATLine: {
@@ -4617,6 +4672,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Invitation"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-contractors-by-id-login-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginLinkOut"];
                 };
             };
             /** @description Error */
@@ -7016,6 +7104,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LoginResult"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-auth-login-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginLinkRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Me"];
                 };
             };
             /** @description Error */

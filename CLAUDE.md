@@ -25,6 +25,9 @@ anything; record any deviation in its "Otevřené otázky" section. User-facing 
 - MCP server at `/api/mcp` (`internal/api/mcp.go`): curated tools dispatched in-process to the REST API with the
   caller's token (same roles/validation); OAuth for claude.ai connectors in `oauth.go`. New tool = entry in
   `mcpTools` + a call in `TestMCPEveryTool`; never expose deletions, approvals, sending or settings.
+- Contractors without e-mail: `User.LinkOnly` (placeholder `*@bez-emailu.invalid`, no password) signs in only
+  with one-time `LoginLink`s (`POST /contractors/{id}/login-link`, `POST /api/auth/login-link`, SPA `/prihlaseni/{token}`).
+  A new link deletes the user's sessions; deleting the contractor deletes the link-only user.
 - Not yet: assemblies, maintenance tasks + visit generator and weekly plan, job costs/profitability,
   NanoFaktura integration (SPEC §8 F3, F5).
 - Tests: `internal/api/garden_test.go` covers the garden domain, roles and tenant isolation.

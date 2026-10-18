@@ -11,7 +11,7 @@ func All() []any {
 	return []any{
 		&User{}, &Account{}, &Membership{}, &Session{}, &APIToken{},
 		&PasswordReset{}, &EmailVerification{}, &RecoveryCode{}, &WebAuthnCredential{}, &AuthChallenge{},
-		&Invitation{}, &Attachment{},
+		&Invitation{}, &Attachment{}, &LoginLink{},
 		&Event{}, &Todo{}, &Webhook{}, &WebhookDelivery{},
 		&Client{}, &Site{}, &Contractor{}, &Job{}, &JobContractor{}, &AttendanceEntry{}, &ContractorPayment{},
 		&PriceItem{}, &Quote{}, &QuoteItem{},

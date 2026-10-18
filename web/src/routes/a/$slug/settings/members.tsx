@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { LockIcon, LogOutIcon, MailPlusIcon, ShieldIcon, UserMinusIcon } from 'lucide-react'
+import { HardHatIcon, LockIcon, LogOutIcon, MailPlusIcon, ShieldIcon, UserMinusIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { accountQueries } from '@/api/queries/accounts'
 import { invitationQueries } from '@/api/queries/invitations'
@@ -11,6 +11,7 @@ import { SettingsPage } from '@/components/settings-page'
 import { ListSkeleton } from '@/components/skeletons'
 import { InvitationList } from '@/components/team/invitation-list'
 import { InviteDialog } from '@/components/team/invite-dialog'
+import { AddContractorDialog } from '@/components/team/add-contractor-dialog'
 import { ChangeRoleDialog, RemoveMemberDialog } from '@/components/team/member-dialogs'
 import {
   assignableRoles,
@@ -69,14 +70,22 @@ function MembersPage() {
     )
   }, [members.data, user?.id])
 
+  const [addContractor, setAddContractor] = useState(false)
   const roles = assignableRoles(role)
   const isSelf = (m: Member) => m.user_id === user?.id
 
   return (
     <SettingsPage
       title="Tým"
-      description="Kdo má přístup k tomuto účtu a co v něm smí dělat. Každý člen se přihlašuje vlastním e-mailem a heslem."
-      actions={manager ? [{ label: 'Pozvat', icon: MailPlusIcon, primary: true, onClick: () => setInviteOpen(true) }] : undefined}
+      description="Kdo má přístup k tomuto účtu a co v něm smí dělat. Členové se přihlašují e-mailem a heslem, dodavatelé bez e-mailu odkazem z telefonu."
+      actions={
+        manager
+          ? [
+              { label: 'Pozvat', icon: MailPlusIcon, primary: true, onClick: () => setInviteOpen(true) },
+              { label: 'Přidat dodavatele', icon: HardHatIcon, onClick: () => setAddContractor(true) },
+            ]
+          : undefined
+      }
     >
       {!manager && (
         <Alert className="mb-6 max-w-2xl">
@@ -91,10 +100,16 @@ function MembersPage() {
             Členové{members.data ? <span className="ml-1.5 text-muted-foreground">{members.data.length}</span> : null}
           </h2>
           {manager && (
-            <Button className="max-md:hidden" onClick={() => setInviteOpen(true)}>
-              <MailPlusIcon data-icon="inline-start" />
-              Pozvat člena
-            </Button>
+            <div className="flex gap-2 max-md:hidden">
+              <Button variant="outline" onClick={() => setAddContractor(true)}>
+                <HardHatIcon data-icon="inline-start" />
+                Přidat dodavatele
+              </Button>
+              <Button onClick={() => setInviteOpen(true)}>
+                <MailPlusIcon data-icon="inline-start" />
+                Pozvat člena
+              </Button>
+            </div>
           )}
         </div>
 
@@ -123,7 +138,7 @@ function MembersPage() {
                         )}
                         <RoleBadge role={m.role} />
                       </div>
-                      <span className="truncate text-sm text-muted-foreground">{m.email}</span>
+                      <span className="truncate text-sm text-muted-foreground">{m.link_only ? 'bez e-mailu · přihlášení odkazem z telefonu' : m.email}</span>
                       <span className="text-xs text-muted-foreground">
                         Členem od {formatDate(m.joined_at.slice(0, 10))}
                         {isLastOwner(target, ctx) ? ' · jediný vlastník' : ''}
@@ -183,6 +198,7 @@ function MembersPage() {
         </section>
       )}
 
+      {manager && addContractor && <AddContractorDialog onClose={() => setAddContractor(false)} />}
       {manager && (
         <InviteDialog
           slug={slug}

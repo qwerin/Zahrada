@@ -144,6 +144,7 @@ type Contractor struct {
 	Active         bool      `json:"active"`
 	UserID         *uint     `json:"user_id,omitempty" doc:"Linked login (role contractor)"`
 	UserEmail      string    `json:"user_email,omitempty"`
+	Login          string    `json:"login" enum:"email,link,none" doc:"How the contractor signs in: e-mail account, one-time links, or not at all"`
 	Note           string    `json:"note"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
@@ -562,6 +563,9 @@ func (s *server) listContractors(ctx context.Context, in *struct {
 }
 
 func (s *server) fillContractorUsers(ctx context.Context, items []Contractor) {
+	for i := range items {
+		items[i].Login = "none"
+	}
 	ids := []uint{}
 	for _, c := range items {
 		if c.UserID != nil {
@@ -572,16 +576,21 @@ func (s *server) fillContractorUsers(ctx context.Context, items []Contractor) {
 		return
 	}
 	var users []model.User
-	if err := s.db.WithContext(ctx).Select("id", "email").Where("id IN ?", ids).Find(&users).Error; err != nil {
+	if err := s.db.WithContext(ctx).Select("id", "email", "link_only").Where("id IN ?", ids).Find(&users).Error; err != nil {
 		return
 	}
-	emails := map[uint]string{}
+	byID := map[uint]model.User{}
 	for _, u := range users {
-		emails[u.ID] = u.Email
+		byID[u.ID] = u
 	}
 	for i := range items {
-		if items[i].UserID != nil {
-			items[i].UserEmail = emails[*items[i].UserID]
+		if items[i].UserID == nil {
+			continue
+		}
+		if u := byID[*items[i].UserID]; u.LinkOnly {
+			items[i].Login = "link"
+		} else {
+			items[i].Login, items[i].UserEmail = "email", u.Email
 		}
 	}
 }
@@ -689,6 +698,17 @@ func (s *server) deleteContractor(ctx context.Context, in *idPath) (*NoContent, 
 			if err := tx.Scopes(inAccount(ctx)).Where("user_id = ? AND role = ?", *m.UserID, model.RoleContractor).
 				Delete(&model.Membership{}).Error; err != nil {
 				return dbErr(err, "membership")
+			}
+			var u model.User
+			if err := tx.First(&u, *m.UserID).Error; err == nil && u.LinkOnly { // link-only users exist only for this contractor
+				for _, t := range []any{&model.Session{}, &model.LoginLink{}, &model.APIToken{}} {
+					if err := tx.Where("user_id = ?", u.ID).Delete(t).Error; err != nil {
+						return dbErr(err, "user")
+					}
+				}
+				if err := tx.Delete(&u).Error; err != nil {
+					return dbErr(err, "user")
+				}
 			}
 		}
 		if err := tx.Scopes(inAccount(ctx)).Where("contractor_id = ? AND accepted_at IS NULL", m.ID).Delete(&model.Invitation{}).Error; err != nil {

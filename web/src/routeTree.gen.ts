@@ -17,6 +17,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ASlugRouteRouteImport } from './routes/a/$slug/route'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth.authorize'
+import { Route as PrihlaseniTokenRouteImport } from './routes/prihlaseni.$token'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
 import { Route as VerifyEmailTokenRouteImport } from './routes/verify-email.$token'
 import { Route as ASlugIndexRouteImport } from './routes/a/$slug/index'
@@ -83,6 +84,11 @@ const InviteTokenRoute = InviteTokenRouteImport.update({
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   id: '/oauth/authorize',
   path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrihlaseniTokenRoute = PrihlaseniTokenRouteImport.update({
+  id: '/prihlaseni/$token',
+  path: '/prihlaseni/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordTokenRoute = ResetPasswordTokenRouteImport.update({
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/a/$slug': typeof ASlugRouteRouteWithChildren
   '/invite/$token': typeof InviteTokenRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/prihlaseni/$token': typeof PrihlaseniTokenRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/verify-email/$token': typeof VerifyEmailTokenRoute
   '/a/$slug/settings': typeof ASlugSettingsRouteRouteWithChildren
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/invite/$token': typeof InviteTokenRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/prihlaseni/$token': typeof PrihlaseniTokenRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/verify-email/$token': typeof VerifyEmailTokenRoute
   '/a/$slug/admin': typeof ASlugAdminRoute
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/a/$slug': typeof ASlugRouteRouteWithChildren
   '/invite/$token': typeof InviteTokenRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/prihlaseni/$token': typeof PrihlaseniTokenRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/verify-email/$token': typeof VerifyEmailTokenRoute
   '/a/$slug/settings': typeof ASlugSettingsRouteRouteWithChildren
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/a/$slug'
     | '/invite/$token'
     | '/oauth/authorize'
+    | '/prihlaseni/$token'
     | '/reset-password/$token'
     | '/verify-email/$token'
     | '/a/$slug/settings'
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/invite/$token'
     | '/oauth/authorize'
+    | '/prihlaseni/$token'
     | '/reset-password/$token'
     | '/verify-email/$token'
     | '/a/$slug/admin'
@@ -415,6 +426,7 @@ export interface FileRouteTypes {
     | '/a/$slug'
     | '/invite/$token'
     | '/oauth/authorize'
+    | '/prihlaseni/$token'
     | '/reset-password/$token'
     | '/verify-email/$token'
     | '/a/$slug/settings'
@@ -453,6 +465,7 @@ export interface RootRouteChildren {
   ASlugRouteRoute: typeof ASlugRouteRouteWithChildren
   InviteTokenRoute: typeof InviteTokenRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
+  PrihlaseniTokenRoute: typeof PrihlaseniTokenRoute
   ResetPasswordTokenRoute: typeof ResetPasswordTokenRoute
   VerifyEmailTokenRoute: typeof VerifyEmailTokenRoute
   TiskSlugNabidkaQuoteIdRoute: typeof TiskSlugNabidkaQuoteIdRoute
@@ -514,6 +527,13 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prihlaseni/$token': {
+      id: '/prihlaseni/$token'
+      path: '/prihlaseni/$token'
+      fullPath: '/prihlaseni/$token'
+      preLoaderRoute: typeof PrihlaseniTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password/$token': {
@@ -784,6 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   ASlugRouteRoute: ASlugRouteRouteWithChildren,
   InviteTokenRoute: InviteTokenRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
+  PrihlaseniTokenRoute: PrihlaseniTokenRoute,
   ResetPasswordTokenRoute: ResetPasswordTokenRoute,
   VerifyEmailTokenRoute: VerifyEmailTokenRoute,
   TiskSlugNabidkaQuoteIdRoute: TiskSlugNabidkaQuoteIdRoute,

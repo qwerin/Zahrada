@@ -124,7 +124,7 @@ function MoreDrawer({ open, onOpenChange }: { open: boolean; onOpenChange: (open
         <DrawerContent>
           <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-left">
             <DrawerTitle className="text-lg">Více</DrawerTitle>
-            {user && <p className="truncate text-sm text-muted-foreground">{user.email}</p>}
+            {user && <p className="truncate text-sm text-muted-foreground">{user.email || 'přihlášení odkazem'}</p>}
           </DrawerHeader>
           <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Section title="Účet">

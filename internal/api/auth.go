@@ -25,8 +25,10 @@ type AuthStatus struct {
 
 type User struct {
 	ID    uint   `json:"id"`
-	Email string `json:"email"`
+	Email string `json:"email" doc:"Empty for link_only users"`
 	Name  string `json:"name"`
+	// LinkOnly: a contractor without e-mail who signs in with one-time links.
+	LinkOnly bool `json:"link_only,omitempty"`
 }
 
 type MeAccount struct {
@@ -217,7 +219,11 @@ func (s *server) me(ctx context.Context, user *model.User) (*Me, error) {
 		accounts = []MeAccount{}
 	}
 	listed := s.cfg.IsAdminEmail(user.Email)
-	return &Me{User: User{ID: user.ID, Email: user.Email, Name: user.Name}, Accounts: accounts,
+	email := user.Email
+	if user.LinkOnly {
+		email = "" // placeholder address, never shown
+	}
+	return &Me{User: User{ID: user.ID, Email: email, Name: user.Name, LinkOnly: user.LinkOnly}, Accounts: accounts,
 		EmailVerified: user.EmailVerifiedAt != nil, InstanceAdmin: s.isInstanceAdmin(user),
 		InstanceAdminPending: listed && user.EmailVerifiedAt == nil}, nil
 }

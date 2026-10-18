@@ -63,7 +63,7 @@ func (s *server) requestPasswordReset(ctx context.Context, in *struct{ Body Pass
 	}
 	db := s.db.WithContext(ctx)
 	var user model.User
-	if err := db.Where("email = ?", normalizeEmail(in.Body.Email)).First(&user).Error; err != nil {
+	if err := db.Where("email = ? AND link_only = ?", normalizeEmail(in.Body.Email), false).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &NoContent{}, nil
 		}

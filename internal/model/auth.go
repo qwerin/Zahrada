@@ -18,8 +18,24 @@ type User struct {
 	// link or password reset, SPEC §3.2); nil = unverified. Instance admin
 	// rights require it.
 	EmailVerifiedAt *time.Time
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	// LinkOnly: a contractor without an e-mail address. The Email is a
+	// placeholder (*.invalid), there is no password; they sign in only with a
+	// one-time login link (LoginLink) created by a manager.
+	LinkOnly  bool `gorm:"not null;default:false"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// LoginLink is a one-time sign-in link for a LinkOnly user (QR code / SMS).
+type LoginLink struct {
+	ID        uint
+	UserID    uint      `gorm:"not null;index"`
+	AccountID uint      `gorm:"not null;index"` // where the link leads
+	TokenHash string    `gorm:"not null;uniqueIndex"`
+	ExpiresAt time.Time `gorm:"not null"`
+	UsedAt    *time.Time
+	CreatedBy uint
+	CreatedAt time.Time
 }
 
 // EmailVerification is an e-mail verification link (SPEC §3.2).

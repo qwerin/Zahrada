@@ -20,6 +20,11 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 - **Připravené práce a materiály** — v menu *Ceník* si uložte položky s nákupní i prodejní cenou, přirážkou, ztratným a pracností. Do kalkulace je pak přidáte jedním klepnutím.
 - **Vložení z textu** — celý ceník nebo položky kalkulace vložíte najednou: tabulku z chatu s Claude, řádky z Excelu nebo řádky typu „Výsadba keře 24 ks × 180 Kč“. Nadpisy se stanou oddíly. Nejlépe funguje tabulka se sloupci *Položka | Množství | Jednotka | Cena za j.*
 
+### Dodavatelé bez e-mailu
+- **Přidání dodavatele v týmu** — v *Nastavení → Tým* klikněte na *Přidat dodavatele*. E-mail je nepovinný: s e-mailem mu přijde pozvánka, bez e-mailu dostane přihlášení do telefonu.
+- **Přihlášení QR kódem nebo odkazem** — dodavatel naskenuje QR kód fotoaparátem telefonu (nebo mu odkaz pošlete SMS či WhatsAppem) a je přihlášený, žádné heslo si nepamatuje. Odkaz funguje jednou a platí 7 dní. Přihlášení pak vydrží, dokud aplikaci používá.
+- **Ztracený telefon** — v detailu dodavatele vytvořte *Nový přihlašovací odkaz*. Původní telefon se tím odhlásí.
+
 ### Zálohy dodavatelům
 - **Vyplacení zálohy** — v detailu dodavatele klikněte na *Vyplatit zálohu* (datum, částka, hotově nebo převodem). Zálohu zapíšete i přímo v *Docházce* u souhrnu dodavatele.
 - **Zůstatek vždy po ruce** — u dodavatele uvidíte, kolik odpracoval (jen schválená docházka), kolik už dostal a kolik mu zbývá doplatit. Tlačítko *Doplatit* předvyplní zbývající částku.

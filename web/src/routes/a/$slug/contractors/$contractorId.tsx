@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { MailIcon, Trash2Icon } from 'lucide-react'
+import { Trash2Icon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { gardenQueries, useDeleteContractor, useInviteContractor, useUpdateContractor } from '@/api/queries/garden'
+import { gardenQueries, useDeleteContractor, useUpdateContractor } from '@/api/queries/garden'
 import type { Contractor } from '@/api/types'
 import { HistorySection } from '@/components/events/timeline'
 import { FormGrid, TextAreaField, TextField } from '@/components/garden/form'
+import { ContractorAccessCard } from '@/components/garden/login-link'
 import { ContractorPaymentsCard } from '@/components/garden/payments'
 import { PageBody, PageHeader, type PageAction } from '@/components/page-header'
 import { PageError } from '@/components/page-states'
-import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { FormSkeleton } from '@/components/skeletons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,12 +34,10 @@ function ContractorPage() {
   const navigate = useNavigate()
   const q = useQuery(gardenQueries.contractor(slug, contractorId))
   const del = useDeleteContractor(slug)
-  const [inviting, setInviting] = useState(false)
   if (q.isError) return <PageError error={q.error} reset={() => void q.refetch()} />
   if (!q.data) return <FormSkeleton />
   const c = q.data
   const actions: PageAction[] = [
-    ...(canManageSettings && !c.user_id ? [{ label: 'Pozvat do aplikace', icon: MailIcon, primary: true, onClick: () => setInviting(true) }] : []),
     ...(canEdit
       ? [{
           label: 'Smazat', icon: Trash2Icon, overflow: true, variant: 'destructive' as const,
@@ -52,18 +50,18 @@ function ContractorPage() {
     <>
       <PageHeader
         title={c.name}
-        description={c.user_email ? `Přihlašuje se jako ${c.user_email}` : 'Zatím nemá přihlášení do aplikace'}
+        description={c.login === 'email' ? `Přihlašuje se jako ${c.user_email}` : c.login === 'link' ? 'Přihlašuje se odkazem z telefonu' : 'Zatím nemá přihlášení do aplikace'}
         back={{ to: '/a/$slug/contractors', params: { slug } }}
         actions={actions}
       />
       <PageBody className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="grid content-start gap-4">
           <ContractorPaymentsCard slug={slug} contractorId={c.id} canEdit={canEdit} />
+          <ContractorAccessCard slug={slug} contractor={c} canManage={canManageSettings} />
           <ContractorForm key={c.updated_at} contractor={c} disabled={!canEdit} />
         </div>
         <HistorySection subjectType="contractor" subjectId={c.id} />
       </PageBody>
-      {inviting && <InviteDialog contractor={c} onClose={() => setInviting(false)} />}
     </>
   )
 }
@@ -113,29 +111,5 @@ function ContractorForm({ contractor: c, disabled }: { contractor: Contractor; d
         )}
       </CardContent>
     </Card>
-  )
-}
-
-function InviteDialog({ contractor, onClose }: { contractor: Contractor; onClose: () => void }) {
-  const { slug } = useCurrentAccount()
-  const invite = useInviteContractor(slug, contractor.id)
-  const [email, setEmail] = useState(contractor.email)
-  return (
-    <ResponsiveDialog
-      open
-      onOpenChange={(o) => !o && onClose()}
-      title="Pozvat do aplikace"
-      description="Dodavatel dostane e-mail s odkazem. Po přihlášení uvidí jen své zakázky a docházku, žádné ceny pro klienty."
-      footer={
-        <Button
-          disabled={!email.includes('@') || invite.isPending}
-          onClick={() => invite.mutate(email, { onSuccess: () => { toast.success('Pozvánka odeslána'); onClose() } })}
-        >
-          Odeslat pozvánku
-        </Button>
-      }
-    >
-      <TextField label="E-mail" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-    </ResponsiveDialog>
   )
 }
