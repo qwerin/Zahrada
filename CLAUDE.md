@@ -15,9 +15,15 @@ anything; record any deviation in its "Otevřené otázky" section. User-facing 
 - Done (SPEC §4.2–4.8): clients + sites, contractors (+ invitation linking a login), jobs (numbering,
   status graph, assignment), attendance (staff CRUD, approvals, close, summary, CSV; contractor
   clock-in/out and own entries), calc preview. Web: dashboard, jobs, clients, contractors, attendance,
-  „Moje práce“, calc, settings.
-- Not yet: price list + assemblies, saved quotes with versions/PDF, maintenance tasks + visit generator
-  and weekly plan, job costs/profitability, NanoFaktura integration (SPEC §8 F2, F3, F5).
+  „Moje práce“, settings.
+- Price list (`/price-items`, bulk import) and quotes per job with versions (`/jobs/{id}/quotes`,
+  `/quotes/{id}`): draft → sent → accepted (job → ordered, other versions superseded). The offer is
+  printed from `/tisk/{slug}/nabidka/{id}` (browser print → PDF, no costs/margins). Paste import of
+  items (chat tables, Excel, free lines) is `web/src/lib/paste-items.ts` (+ tests).
+- Job photos: attachments with owner_type `job`; contractors upload/view via `/me/jobs/{id}/photos`
+  and `/me/photos/{id}` (only assigned jobs, images only).
+- Not yet: assemblies, maintenance tasks + visit generator and weekly plan, job costs/profitability,
+  NanoFaktura integration (SPEC §8 F3, F5).
 - Tests: `internal/api/garden_test.go` covers the garden domain, roles and tenant isolation.
   SQLite runs single-connection: inside a transaction use only `tx` (helpers take a `db` param).
 

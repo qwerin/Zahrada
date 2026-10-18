@@ -149,6 +149,7 @@ func New(db *gorm.DB, cfg config.Config, deps Deps) (http.Handler, huma.API) {
 	s.registerDirectory(account)
 	s.registerJobs(account)
 	s.registerAttendance(account)
+	s.registerQuotes(account)
 
 	return router, api
 }

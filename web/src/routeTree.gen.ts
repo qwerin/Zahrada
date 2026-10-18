@@ -20,10 +20,10 @@ import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.
 import { Route as VerifyEmailTokenRouteImport } from './routes/verify-email.$token'
 import { Route as ASlugIndexRouteImport } from './routes/a/$slug/index'
 import { Route as ASlugAdminRouteImport } from './routes/a/$slug/admin'
-import { Route as ASlugCalcRouteImport } from './routes/a/$slug/calc'
 import { Route as ASlugDashboardRouteImport } from './routes/a/$slug/dashboard'
 import { Route as ASlugMeRouteImport } from './routes/a/$slug/me'
 import { Route as ASlugOnboardingRouteImport } from './routes/a/$slug/onboarding'
+import { Route as ASlugPriceItemsRouteImport } from './routes/a/$slug/price-items'
 import { Route as ASlugSettingsRouteRouteImport } from './routes/a/$slug/settings/route'
 import { Route as ASlugActivityIndexRouteImport } from './routes/a/$slug/activity/index'
 import { Route as ASlugAttendanceIndexRouteImport } from './routes/a/$slug/attendance/index'
@@ -33,6 +33,7 @@ import { Route as ASlugContractorsIndexRouteImport } from './routes/a/$slug/cont
 import { Route as ASlugContractorsContractorIdRouteImport } from './routes/a/$slug/contractors/$contractorId'
 import { Route as ASlugJobsIndexRouteImport } from './routes/a/$slug/jobs/index'
 import { Route as ASlugJobsJobIdRouteImport } from './routes/a/$slug/jobs/$jobId'
+import { Route as ASlugQuotesQuoteIdRouteImport } from './routes/a/$slug/quotes/$quoteId'
 import { Route as ASlugSettingsIndexRouteImport } from './routes/a/$slug/settings/index'
 import { Route as ASlugSettingsCompanyRouteImport } from './routes/a/$slug/settings/company'
 import { Route as ASlugSettingsMembersRouteImport } from './routes/a/$slug/settings/members'
@@ -40,6 +41,7 @@ import { Route as ASlugSettingsProfileRouteImport } from './routes/a/$slug/setti
 import { Route as ASlugSettingsSecurityRouteImport } from './routes/a/$slug/settings/security'
 import { Route as ASlugSettingsTokensRouteImport } from './routes/a/$slug/settings/tokens'
 import { Route as ASlugTodosIndexRouteImport } from './routes/a/$slug/todos/index'
+import { Route as TiskSlugNabidkaQuoteIdRouteImport } from './routes/tisk.$slug.nabidka.$quoteId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,11 +98,6 @@ const ASlugAdminRoute = ASlugAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => ASlugRouteRoute,
 } as any)
-const ASlugCalcRoute = ASlugCalcRouteImport.update({
-  id: '/calc',
-  path: '/calc',
-  getParentRoute: () => ASlugRouteRoute,
-} as any)
 const ASlugDashboardRoute = ASlugDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -114,6 +111,11 @@ const ASlugMeRoute = ASlugMeRouteImport.update({
 const ASlugOnboardingRoute = ASlugOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => ASlugRouteRoute,
+} as any)
+const ASlugPriceItemsRoute = ASlugPriceItemsRouteImport.update({
+  id: '/price-items',
+  path: '/price-items',
   getParentRoute: () => ASlugRouteRoute,
 } as any)
 const ASlugSettingsRouteRoute = ASlugSettingsRouteRouteImport.update({
@@ -162,6 +164,11 @@ const ASlugJobsJobIdRoute = ASlugJobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => ASlugRouteRoute,
 } as any)
+const ASlugQuotesQuoteIdRoute = ASlugQuotesQuoteIdRouteImport.update({
+  id: '/quotes/$quoteId',
+  path: '/quotes/$quoteId',
+  getParentRoute: () => ASlugRouteRoute,
+} as any)
 const ASlugSettingsIndexRoute = ASlugSettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -197,6 +204,11 @@ const ASlugTodosIndexRoute = ASlugTodosIndexRouteImport.update({
   path: '/todos/',
   getParentRoute: () => ASlugRouteRoute,
 } as any)
+const TiskSlugNabidkaQuoteIdRoute = TiskSlugNabidkaQuoteIdRouteImport.update({
+  id: '/tisk/$slug/nabidka/$quoteId',
+  path: '/tisk/$slug/nabidka/$quoteId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -210,19 +222,21 @@ export interface FileRoutesByFullPath {
   '/verify-email/$token': typeof VerifyEmailTokenRoute
   '/a/$slug/settings': typeof ASlugSettingsRouteRouteWithChildren
   '/a/$slug/admin': typeof ASlugAdminRoute
-  '/a/$slug/calc': typeof ASlugCalcRoute
   '/a/$slug/dashboard': typeof ASlugDashboardRoute
   '/a/$slug/me': typeof ASlugMeRoute
   '/a/$slug/onboarding': typeof ASlugOnboardingRoute
+  '/a/$slug/price-items': typeof ASlugPriceItemsRoute
   '/a/$slug/': typeof ASlugIndexRoute
   '/a/$slug/clients/$clientId': typeof ASlugClientsClientIdRoute
   '/a/$slug/contractors/$contractorId': typeof ASlugContractorsContractorIdRoute
   '/a/$slug/jobs/$jobId': typeof ASlugJobsJobIdRoute
+  '/a/$slug/quotes/$quoteId': typeof ASlugQuotesQuoteIdRoute
   '/a/$slug/settings/company': typeof ASlugSettingsCompanyRoute
   '/a/$slug/settings/members': typeof ASlugSettingsMembersRoute
   '/a/$slug/settings/profile': typeof ASlugSettingsProfileRoute
   '/a/$slug/settings/security': typeof ASlugSettingsSecurityRoute
   '/a/$slug/settings/tokens': typeof ASlugSettingsTokensRoute
+  '/tisk/$slug/nabidka/$quoteId': typeof TiskSlugNabidkaQuoteIdRoute
   '/a/$slug/activity/': typeof ASlugActivityIndexRoute
   '/a/$slug/attendance/': typeof ASlugAttendanceIndexRoute
   '/a/$slug/clients/': typeof ASlugClientsIndexRoute
@@ -241,19 +255,21 @@ export interface FileRoutesByTo {
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/verify-email/$token': typeof VerifyEmailTokenRoute
   '/a/$slug/admin': typeof ASlugAdminRoute
-  '/a/$slug/calc': typeof ASlugCalcRoute
   '/a/$slug/dashboard': typeof ASlugDashboardRoute
   '/a/$slug/me': typeof ASlugMeRoute
   '/a/$slug/onboarding': typeof ASlugOnboardingRoute
+  '/a/$slug/price-items': typeof ASlugPriceItemsRoute
   '/a/$slug': typeof ASlugIndexRoute
   '/a/$slug/clients/$clientId': typeof ASlugClientsClientIdRoute
   '/a/$slug/contractors/$contractorId': typeof ASlugContractorsContractorIdRoute
   '/a/$slug/jobs/$jobId': typeof ASlugJobsJobIdRoute
+  '/a/$slug/quotes/$quoteId': typeof ASlugQuotesQuoteIdRoute
   '/a/$slug/settings/company': typeof ASlugSettingsCompanyRoute
   '/a/$slug/settings/members': typeof ASlugSettingsMembersRoute
   '/a/$slug/settings/profile': typeof ASlugSettingsProfileRoute
   '/a/$slug/settings/security': typeof ASlugSettingsSecurityRoute
   '/a/$slug/settings/tokens': typeof ASlugSettingsTokensRoute
+  '/tisk/$slug/nabidka/$quoteId': typeof TiskSlugNabidkaQuoteIdRoute
   '/a/$slug/activity': typeof ASlugActivityIndexRoute
   '/a/$slug/attendance': typeof ASlugAttendanceIndexRoute
   '/a/$slug/clients': typeof ASlugClientsIndexRoute
@@ -275,19 +291,21 @@ export interface FileRoutesById {
   '/verify-email/$token': typeof VerifyEmailTokenRoute
   '/a/$slug/settings': typeof ASlugSettingsRouteRouteWithChildren
   '/a/$slug/admin': typeof ASlugAdminRoute
-  '/a/$slug/calc': typeof ASlugCalcRoute
   '/a/$slug/dashboard': typeof ASlugDashboardRoute
   '/a/$slug/me': typeof ASlugMeRoute
   '/a/$slug/onboarding': typeof ASlugOnboardingRoute
+  '/a/$slug/price-items': typeof ASlugPriceItemsRoute
   '/a/$slug/': typeof ASlugIndexRoute
   '/a/$slug/clients/$clientId': typeof ASlugClientsClientIdRoute
   '/a/$slug/contractors/$contractorId': typeof ASlugContractorsContractorIdRoute
   '/a/$slug/jobs/$jobId': typeof ASlugJobsJobIdRoute
+  '/a/$slug/quotes/$quoteId': typeof ASlugQuotesQuoteIdRoute
   '/a/$slug/settings/company': typeof ASlugSettingsCompanyRoute
   '/a/$slug/settings/members': typeof ASlugSettingsMembersRoute
   '/a/$slug/settings/profile': typeof ASlugSettingsProfileRoute
   '/a/$slug/settings/security': typeof ASlugSettingsSecurityRoute
   '/a/$slug/settings/tokens': typeof ASlugSettingsTokensRoute
+  '/tisk/$slug/nabidka/$quoteId': typeof TiskSlugNabidkaQuoteIdRoute
   '/a/$slug/activity/': typeof ASlugActivityIndexRoute
   '/a/$slug/attendance/': typeof ASlugAttendanceIndexRoute
   '/a/$slug/clients/': typeof ASlugClientsIndexRoute
@@ -310,19 +328,21 @@ export interface FileRouteTypes {
     | '/verify-email/$token'
     | '/a/$slug/settings'
     | '/a/$slug/admin'
-    | '/a/$slug/calc'
     | '/a/$slug/dashboard'
     | '/a/$slug/me'
     | '/a/$slug/onboarding'
+    | '/a/$slug/price-items'
     | '/a/$slug/'
     | '/a/$slug/clients/$clientId'
     | '/a/$slug/contractors/$contractorId'
     | '/a/$slug/jobs/$jobId'
+    | '/a/$slug/quotes/$quoteId'
     | '/a/$slug/settings/company'
     | '/a/$slug/settings/members'
     | '/a/$slug/settings/profile'
     | '/a/$slug/settings/security'
     | '/a/$slug/settings/tokens'
+    | '/tisk/$slug/nabidka/$quoteId'
     | '/a/$slug/activity/'
     | '/a/$slug/attendance/'
     | '/a/$slug/clients/'
@@ -341,19 +361,21 @@ export interface FileRouteTypes {
     | '/reset-password/$token'
     | '/verify-email/$token'
     | '/a/$slug/admin'
-    | '/a/$slug/calc'
     | '/a/$slug/dashboard'
     | '/a/$slug/me'
     | '/a/$slug/onboarding'
+    | '/a/$slug/price-items'
     | '/a/$slug'
     | '/a/$slug/clients/$clientId'
     | '/a/$slug/contractors/$contractorId'
     | '/a/$slug/jobs/$jobId'
+    | '/a/$slug/quotes/$quoteId'
     | '/a/$slug/settings/company'
     | '/a/$slug/settings/members'
     | '/a/$slug/settings/profile'
     | '/a/$slug/settings/security'
     | '/a/$slug/settings/tokens'
+    | '/tisk/$slug/nabidka/$quoteId'
     | '/a/$slug/activity'
     | '/a/$slug/attendance'
     | '/a/$slug/clients'
@@ -374,19 +396,21 @@ export interface FileRouteTypes {
     | '/verify-email/$token'
     | '/a/$slug/settings'
     | '/a/$slug/admin'
-    | '/a/$slug/calc'
     | '/a/$slug/dashboard'
     | '/a/$slug/me'
     | '/a/$slug/onboarding'
+    | '/a/$slug/price-items'
     | '/a/$slug/'
     | '/a/$slug/clients/$clientId'
     | '/a/$slug/contractors/$contractorId'
     | '/a/$slug/jobs/$jobId'
+    | '/a/$slug/quotes/$quoteId'
     | '/a/$slug/settings/company'
     | '/a/$slug/settings/members'
     | '/a/$slug/settings/profile'
     | '/a/$slug/settings/security'
     | '/a/$slug/settings/tokens'
+    | '/tisk/$slug/nabidka/$quoteId'
     | '/a/$slug/activity/'
     | '/a/$slug/attendance/'
     | '/a/$slug/clients/'
@@ -406,6 +430,7 @@ export interface RootRouteChildren {
   InviteTokenRoute: typeof InviteTokenRoute
   ResetPasswordTokenRoute: typeof ResetPasswordTokenRoute
   VerifyEmailTokenRoute: typeof VerifyEmailTokenRoute
+  TiskSlugNabidkaQuoteIdRoute: typeof TiskSlugNabidkaQuoteIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -487,13 +512,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ASlugAdminRouteImport
       parentRoute: typeof ASlugRouteRoute
     }
-    '/a/$slug/calc': {
-      id: '/a/$slug/calc'
-      path: '/calc'
-      fullPath: '/a/$slug/calc'
-      preLoaderRoute: typeof ASlugCalcRouteImport
-      parentRoute: typeof ASlugRouteRoute
-    }
     '/a/$slug/dashboard': {
       id: '/a/$slug/dashboard'
       path: '/dashboard'
@@ -513,6 +531,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/a/$slug/onboarding'
       preLoaderRoute: typeof ASlugOnboardingRouteImport
+      parentRoute: typeof ASlugRouteRoute
+    }
+    '/a/$slug/price-items': {
+      id: '/a/$slug/price-items'
+      path: '/price-items'
+      fullPath: '/a/$slug/price-items'
+      preLoaderRoute: typeof ASlugPriceItemsRouteImport
       parentRoute: typeof ASlugRouteRoute
     }
     '/a/$slug/settings': {
@@ -578,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ASlugJobsJobIdRouteImport
       parentRoute: typeof ASlugRouteRoute
     }
+    '/a/$slug/quotes/$quoteId': {
+      id: '/a/$slug/quotes/$quoteId'
+      path: '/quotes/$quoteId'
+      fullPath: '/a/$slug/quotes/$quoteId'
+      preLoaderRoute: typeof ASlugQuotesQuoteIdRouteImport
+      parentRoute: typeof ASlugRouteRoute
+    }
     '/a/$slug/settings/': {
       id: '/a/$slug/settings/'
       path: '/'
@@ -627,6 +659,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ASlugTodosIndexRouteImport
       parentRoute: typeof ASlugRouteRoute
     }
+    '/tisk/$slug/nabidka/$quoteId': {
+      id: '/tisk/$slug/nabidka/$quoteId'
+      path: '/tisk/$slug/nabidka/$quoteId'
+      fullPath: '/tisk/$slug/nabidka/$quoteId'
+      preLoaderRoute: typeof TiskSlugNabidkaQuoteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -654,14 +693,15 @@ const ASlugSettingsRouteRouteWithChildren =
 interface ASlugRouteRouteChildren {
   ASlugSettingsRouteRoute: typeof ASlugSettingsRouteRouteWithChildren
   ASlugAdminRoute: typeof ASlugAdminRoute
-  ASlugCalcRoute: typeof ASlugCalcRoute
   ASlugDashboardRoute: typeof ASlugDashboardRoute
   ASlugMeRoute: typeof ASlugMeRoute
   ASlugOnboardingRoute: typeof ASlugOnboardingRoute
+  ASlugPriceItemsRoute: typeof ASlugPriceItemsRoute
   ASlugIndexRoute: typeof ASlugIndexRoute
   ASlugClientsClientIdRoute: typeof ASlugClientsClientIdRoute
   ASlugContractorsContractorIdRoute: typeof ASlugContractorsContractorIdRoute
   ASlugJobsJobIdRoute: typeof ASlugJobsJobIdRoute
+  ASlugQuotesQuoteIdRoute: typeof ASlugQuotesQuoteIdRoute
   ASlugActivityIndexRoute: typeof ASlugActivityIndexRoute
   ASlugAttendanceIndexRoute: typeof ASlugAttendanceIndexRoute
   ASlugClientsIndexRoute: typeof ASlugClientsIndexRoute
@@ -673,14 +713,15 @@ interface ASlugRouteRouteChildren {
 const ASlugRouteRouteChildren: ASlugRouteRouteChildren = {
   ASlugSettingsRouteRoute: ASlugSettingsRouteRouteWithChildren,
   ASlugAdminRoute: ASlugAdminRoute,
-  ASlugCalcRoute: ASlugCalcRoute,
   ASlugDashboardRoute: ASlugDashboardRoute,
   ASlugMeRoute: ASlugMeRoute,
   ASlugOnboardingRoute: ASlugOnboardingRoute,
+  ASlugPriceItemsRoute: ASlugPriceItemsRoute,
   ASlugIndexRoute: ASlugIndexRoute,
   ASlugClientsClientIdRoute: ASlugClientsClientIdRoute,
   ASlugContractorsContractorIdRoute: ASlugContractorsContractorIdRoute,
   ASlugJobsJobIdRoute: ASlugJobsJobIdRoute,
+  ASlugQuotesQuoteIdRoute: ASlugQuotesQuoteIdRoute,
   ASlugActivityIndexRoute: ASlugActivityIndexRoute,
   ASlugAttendanceIndexRoute: ASlugAttendanceIndexRoute,
   ASlugClientsIndexRoute: ASlugClientsIndexRoute,
@@ -703,6 +744,7 @@ const rootRouteChildren: RootRouteChildren = {
   InviteTokenRoute: InviteTokenRoute,
   ResetPasswordTokenRoute: ResetPasswordTokenRoute,
   VerifyEmailTokenRoute: VerifyEmailTokenRoute,
+  TiskSlugNabidkaQuoteIdRoute: TiskSlugNabidkaQuoteIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

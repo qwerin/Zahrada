@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { PencilIcon, Trash2Icon } from 'lucide-react'
+import { CalculatorIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { gardenQueries, useDeleteJob, useJobStatus, useUpdateJob } from '@/api/queries/garden'
+import { gardenQueries, quoteQueries, useCreateQuote, useDeleteJob, useJobStatus, useUpdateJob } from '@/api/queries/garden'
 import type { Job, JobKind, JobStatus } from '@/api/types'
 import { HistorySection } from '@/components/events/timeline'
+import { JobPhotos } from '@/components/garden/photos'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
 import {
   attendanceStatusLabels,
@@ -14,6 +15,8 @@ import {
   jobKindLabels,
   jobStatusLabels,
   jobStatusTone,
+  quoteStatusLabels,
+  quoteStatusTone,
 } from '@/components/garden/labels'
 import { PageBody, PageHeader, type PageAction } from '@/components/page-header'
 import { PageError } from '@/components/page-states'
@@ -56,7 +59,11 @@ function JobPage() {
   const status = useJobStatus(slug, jobId)
   const update = useUpdateJob(slug, jobId)
   const del = useDeleteJob(slug)
+  const quotes = useQuery(quoteQueries.jobQuotes(slug, jobId))
+  const newQuote = useCreateQuote(slug, jobId)
   const [editing, setEditing] = useState(false)
+  const createQuote = () =>
+    newQuote.mutate(undefined, { onSuccess: (q) => void navigate({ to: '/a/$slug/quotes/$quoteId', params: { slug, quoteId: q.id } }) })
 
   if (q.isError) return <PageError error={q.error} reset={() => void q.refetch()} />
   if (!q.data) return <FormSkeleton />
@@ -107,6 +114,35 @@ function JobPage() {
       />
       <PageBody className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="grid content-start gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Kalkulace a nabídky</CardTitle>
+              {canEdit && (
+                <Button size="sm" variant={quotes.data?.length ? 'outline' : 'default'} disabled={newQuote.isPending} onClick={createQuote}>
+                  <CalculatorIcon data-icon="inline-start" /> Nová kalkulace
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="grid gap-1">
+              {quotes.data?.length === 0 && <p className="text-sm text-muted-foreground">Zatím žádná kalkulace. Z kalkulace se po odeslání stane nabídka pro klienta.</p>}
+              {quotes.data?.map((q) => (
+                <Link key={q.id} to="/a/$slug/quotes/$quoteId" params={{ slug, quoteId: q.id }} className="flex flex-wrap items-center gap-2 rounded-md p-2 text-sm hover:bg-muted/50">
+                  <span className="font-mono text-xs text-muted-foreground">v{q.version}</span>
+                  <span className="min-w-0 flex-1 truncate">{q.title}</span>
+                  <span className="tabular-nums font-medium">{formatMoney(q.gross)}</span>
+                  <StatusPill tone={quoteStatusTone[q.status]}>{quoteStatusLabels[q.status]}</StatusPill>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Fotky</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <JobPhotos slug={slug} jobId={j.id} asContractor={false} canUpload={canEdit} />
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Docházka na zakázce</CardTitle>

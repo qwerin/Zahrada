@@ -40,23 +40,24 @@ var jobStatusLabels = map[string]string{
 }
 
 type Job struct {
-	ID            uint      `json:"id"`
-	Number        string    `json:"number"`
-	ClientID      uint      `json:"client_id"`
-	ClientName    string    `json:"client_name"`
-	SiteID        *uint     `json:"site_id,omitempty"`
-	SiteName      string    `json:"site_name,omitempty"`
-	Kind          string    `json:"kind" enum:"realization,maintenance,one_off"`
-	Title         string    `json:"title"`
-	Status        string    `json:"status" enum:"inquiry,quoted,ordered,in_progress,done,invoiced,cancelled"`
-	PlannedFrom   string    `json:"planned_from,omitempty" format:"date"`
-	PlannedTo     string    `json:"planned_to,omitempty" format:"date"`
-	MonthlyFee    *int64    `json:"monthly_fee,omitempty" doc:"Maintenance flat fee per month, haléře"`
-	Note          string    `json:"note"`
-	ContractorIDs []uint    `json:"contractor_ids" nullable:"false" doc:"Assigned contractors"`
-	NextStatuses  []string  `json:"next_statuses" nullable:"false" doc:"Allowed status changes"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID              uint      `json:"id"`
+	Number          string    `json:"number"`
+	ClientID        uint      `json:"client_id"`
+	ClientName      string    `json:"client_name"`
+	SiteID          *uint     `json:"site_id,omitempty"`
+	SiteName        string    `json:"site_name,omitempty"`
+	Kind            string    `json:"kind" enum:"realization,maintenance,one_off"`
+	Title           string    `json:"title"`
+	Status          string    `json:"status" enum:"inquiry,quoted,ordered,in_progress,done,invoiced,cancelled"`
+	PlannedFrom     string    `json:"planned_from,omitempty" format:"date"`
+	PlannedTo       string    `json:"planned_to,omitempty" format:"date"`
+	MonthlyFee      *int64    `json:"monthly_fee,omitempty" doc:"Maintenance flat fee per month, haléře"`
+	Note            string    `json:"note"`
+	ContractorIDs   []uint    `json:"contractor_ids" nullable:"false" doc:"Assigned contractors"`
+	AcceptedQuoteID *uint     `json:"accepted_quote_id,omitempty" doc:"Accepted offer (quote version)"`
+	NextStatuses    []string  `json:"next_statuses" nullable:"false" doc:"Allowed status changes"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 type JobCreate struct {
@@ -104,7 +105,7 @@ func toJob(m *model.Job) Job {
 	}
 	return Job{ID: m.ID, Number: m.Number, ClientID: m.ClientID, SiteID: m.SiteID, Kind: m.Kind, Title: m.Title,
 		Status: m.Status, PlannedFrom: m.PlannedFrom, PlannedTo: m.PlannedTo, MonthlyFee: m.MonthlyFee, Note: m.Note,
-		ContractorIDs: []uint{}, NextStatuses: next, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
+		ContractorIDs: []uint{}, NextStatuses: next, AcceptedQuoteID: m.AcceptedQuoteID, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
 }
 
 // fillJobs adds client/site names and assigned contractors (a few queries per page).
@@ -417,6 +418,7 @@ func (s *server) changeJobStatus(ctx context.Context, in *struct {
 }
 
 func (s *server) deleteJob(ctx context.Context, in *idPath) (*NoContent, error) {
+	var files []string
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		m, err := s.loadJob(ctx, tx, in.ID)
 		if err != nil {
@@ -432,6 +434,21 @@ func (s *server) deleteJob(ctx context.Context, in *idPath) (*NoContent, error) 
 		if err := tx.Where("job_id = ?", m.ID).Delete(&model.JobContractor{}).Error; err != nil {
 			return dbErr(err, "job contractor")
 		}
+		var quoteIDs []uint
+		if err := tx.Model(&model.Quote{}).Scopes(inAccount(ctx)).Where("job_id = ?", m.ID).Pluck("id", &quoteIDs).Error; err != nil {
+			return dbErr(err, "quote")
+		}
+		if len(quoteIDs) > 0 {
+			if err := tx.Where("quote_id IN ?", quoteIDs).Delete(&model.QuoteItem{}).Error; err != nil {
+				return dbErr(err, "quote item")
+			}
+			if err := tx.Where("id IN ?", quoteIDs).Delete(&model.Quote{}).Error; err != nil {
+				return dbErr(err, "quote")
+			}
+		}
+		if files, err = deleteOwnerAttachments(ctx, tx, model.OwnerJob, m.ID); err != nil {
+			return err
+		}
 		if err := tx.Delete(m).Error; err != nil {
 			return dbErr(err, "job")
 		}
@@ -440,5 +457,6 @@ func (s *server) deleteJob(ctx context.Context, in *idPath) (*NoContent, error) 
 	if err != nil {
 		return nil, err
 	}
+	s.removeFiles(ctx, files)
 	return &NoContent{}, nil
 }

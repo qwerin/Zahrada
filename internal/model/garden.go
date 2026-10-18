@@ -101,9 +101,11 @@ type Job struct {
 	PlannedTo   string
 	MonthlyFee  *int64
 	Note        string
-	SearchText  string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	// AcceptedQuoteID is the accepted offer (quote version) of the job.
+	AcceptedQuoteID *uint
+	SearchText      string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
 
 // JobContractor assigns a contractor to a job (they see it under /me and may record attendance on it).

@@ -1,7 +1,6 @@
 import {
   BriefcaseIcon,
   BuildingIcon,
-  CalculatorIcon,
   ClockIcon,
   HardHatIcon,
   HistoryIcon,
@@ -10,6 +9,7 @@ import {
   ListTodoIcon,
   ServerCogIcon,
   ShieldCheckIcon,
+  TagsIcon,
   UserCogIcon,
   UserIcon,
   UsersIcon,
@@ -21,7 +21,7 @@ import {
 export const moreNav = [
   { label: 'Klienti', to: '/a/$slug/clients', icon: UsersIcon },
   { label: 'Dodavatelé', to: '/a/$slug/contractors', icon: HardHatIcon },
-  { label: 'Kalkulace', to: '/a/$slug/calc', icon: CalculatorIcon },
+  { label: 'Ceník', to: '/a/$slug/price-items', icon: TagsIcon },
   { label: 'Úkoly', to: '/a/$slug/todos', icon: ListTodoIcon },
   { label: 'Aktivita', to: '/a/$slug/activity', icon: HistoryIcon },
 ] as const

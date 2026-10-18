@@ -12,6 +12,8 @@ import type {
   CreateSiteInput,
   JobListQuery,
   JobStatus,
+  PriceItemInput,
+  QuoteInput,
   UpdateClientInput,
   UpdateContractorInput,
   UpdateJobInput,
@@ -322,4 +324,134 @@ export function useSubmitMyAttendance(slug: string) {
       unwrap(api.POST('/api/accounts/{slug}/me/attendance/actions/submit', { ...path(slug), body: { ids } })),
     onSuccess: () => inv('me'),
   })
+}
+
+// ---- ceník a nabídky ----
+
+const kq = {
+  priceItems: (slug: string) => [...keys.account(slug), 'price-items'] as const,
+  quotes: (slug: string) => [...keys.account(slug), 'quotes'] as const,
+  photos: (slug: string) => [...keys.account(slug), 'photos'] as const,
+}
+
+export const quoteQueries = {
+  priceItems: (slug: string, query = '') =>
+    queryOptions({
+      queryKey: [...kq.priceItems(slug), query],
+      queryFn: () => unwrap(api.GET('/api/accounts/{slug}/price-items', { params: { path: { slug }, query: { query, per_page: 200 } } })),
+      placeholderData: keepPreviousData,
+    }),
+  jobQuotes: (slug: string, jobId: number) =>
+    queryOptions({
+      queryKey: [...kq.quotes(slug), 'job', jobId],
+      queryFn: async () => (await unwrap(api.GET('/api/accounts/{slug}/jobs/{id}/quotes', pathId(slug, jobId)))) ?? [],
+    }),
+  quote: (slug: string, id: number) =>
+    queryOptions({
+      queryKey: [...kq.quotes(slug), 'detail', id],
+      queryFn: () => unwrap(api.GET('/api/accounts/{slug}/quotes/{id}', pathId(slug, id))),
+    }),
+  jobPhotos: (slug: string, jobId: number) =>
+    queryOptions({
+      queryKey: [...kq.photos(slug), 'job', jobId],
+      queryFn: async () => (await unwrap(api.GET('/api/accounts/{slug}/jobs/{id}/photos', pathId(slug, jobId)))) ?? [],
+    }),
+  myJobPhotos: (slug: string, jobId: number) =>
+    queryOptions({
+      queryKey: [...kq.photos(slug), 'me', jobId],
+      queryFn: async () => (await unwrap(api.GET('/api/accounts/{slug}/me/jobs/{id}/photos', pathId(slug, jobId)))) ?? [],
+    }),
+}
+
+export function useSavePriceItem(slug: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...body }: PriceItemInput & { id?: number }) =>
+      id
+        ? unwrap(api.PUT('/api/accounts/{slug}/price-items/{id}', { ...pathId(slug, id), body }))
+        : unwrap(api.POST('/api/accounts/{slug}/price-items', { ...path(slug), body })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: kq.priceItems(slug) }),
+  })
+}
+
+export function useImportPriceItems(slug: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (items: PriceItemInput[]) => unwrap(api.POST('/api/accounts/{slug}/price-items/import', { ...path(slug), body: { items } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: kq.priceItems(slug) }),
+  })
+}
+
+export function useDeletePriceItem(slug: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => unwrap(api.DELETE('/api/accounts/{slug}/price-items/{id}', pathId(slug, id))),
+    onSuccess: () => qc.invalidateQueries({ queryKey: kq.priceItems(slug) }),
+  })
+}
+
+export function useCreateQuote(slug: string, jobId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (copyFrom?: number) =>
+      unwrap(api.POST('/api/accounts/{slug}/jobs/{id}/quotes', { ...pathId(slug, jobId), body: { copy_from: copyFrom } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: kq.quotes(slug) }),
+  })
+}
+
+export function useSaveQuote(slug: string, id: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: QuoteInput) => unwrap(api.PUT('/api/accounts/{slug}/quotes/{id}', { ...pathId(slug, id), body })),
+    onSuccess: (q) => {
+      qc.setQueryData(quoteQueries.quote(slug, id).queryKey, q)
+      return qc.invalidateQueries({ queryKey: [...kq.quotes(slug), 'job'] })
+    },
+  })
+}
+
+export function useQuoteStatus(slug: string, id: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (status: 'draft' | 'sent' | 'accepted' | 'rejected') =>
+      unwrap(api.POST('/api/accounts/{slug}/quotes/{id}/status', { ...pathId(slug, id), body: { status } })),
+    onSuccess: () => Promise.all([qc.invalidateQueries({ queryKey: kq.quotes(slug) }), qc.invalidateQueries({ queryKey: k.jobs(slug) })]),
+  })
+}
+
+export function useDeleteQuote(slug: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => unwrap(api.DELETE('/api/accounts/{slug}/quotes/{id}', pathId(slug, id))),
+    onSuccess: () => qc.invalidateQueries({ queryKey: kq.quotes(slug) }),
+  })
+}
+
+/** Nahrání fotky k zakázce: vedoucí přes /attachments, dodavatel přes /me. */
+export function useUploadJobPhoto(slug: string, jobId: number, asContractor: boolean) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      let url = `/api/accounts/${encodeURIComponent(slug)}/me/jobs/${jobId}/photos`
+      if (!asContractor) {
+        fd.append('owner_type', 'job')
+        fd.append('owner_id', String(jobId))
+        url = `/api/accounts/${encodeURIComponent(slug)}/attachments`
+      }
+      const res = await fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' })
+      if (!res.ok) {
+        const p = (await res.json().catch(() => ({}))) as { detail?: string }
+        throw new Error(p.detail || 'Fotku se nepodařilo nahrát.')
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: kq.photos(slug) }),
+  })
+}
+
+/** Adresa náhledu fotky (vedoucí / dodavatel). */
+export function photoUrl(slug: string, id: number, asContractor: boolean) {
+  const s = encodeURIComponent(slug)
+  return asContractor ? `/api/accounts/${s}/me/photos/${id}` : `/api/accounts/${s}/attachments/${id}/download?inline=true`
 }

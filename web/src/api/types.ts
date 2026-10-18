@@ -95,6 +95,16 @@ export type MeContractor = ResponseBody<'/api/accounts/{slug}/me/contractor', 'g
 export type MeJob = NonNullable<ResponseBody<'/api/accounts/{slug}/me/jobs', 'get'>>[number]
 export type ClockOutInput = RequestBody<'/api/accounts/{slug}/me/attendance/clock-out', 'post'>
 
+// --- Ceník a nabídky ---
+export type PriceItemList = ResponseBody<'/api/accounts/{slug}/price-items', 'get'>
+export type PriceItem = ListItem<PriceItemList>
+export type PriceItemInput = RequestBody<'/api/accounts/{slug}/price-items', 'post'>
+export type Quote = ResponseBody<'/api/accounts/{slug}/quotes/{id}', 'get'>
+export type QuoteLine = Quote['items'][number]
+export type QuoteInput = RequestBody<'/api/accounts/{slug}/quotes/{id}', 'put'>
+export type QuoteSummary = NonNullable<ResponseBody<'/api/accounts/{slug}/jobs/{id}/quotes', 'get'>>[number]
+export type QuoteStatus = QuoteSummary['status']
+
 // --- Kalkulace ---
 export type CalcPreviewInput = RequestBody<'/api/accounts/{slug}/calc/preview', 'post'>
 export type CalcItem = CalcPreviewInput['items'][number]

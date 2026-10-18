@@ -13,6 +13,7 @@ import {
 } from '@/api/queries/garden'
 import type { AttendanceEntry } from '@/api/types'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
+import { JobPhotos } from '@/components/garden/photos'
 import { attendanceStatusLabels, attendanceStatusTone, currentMonth, formatMinutes, monthLabel, shiftMonth } from '@/components/garden/labels'
 import { PageBody, PageHeader } from '@/components/page-header'
 import { PageError } from '@/components/page-states'
@@ -130,6 +131,12 @@ function MyWorkPage() {
                   </p>
                 )}
                 {j.note && <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{j.note}</p>}
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-sm text-primary">Fotky z práce</summary>
+                  <div className="pt-2">
+                    <JobPhotos slug={slug} jobId={j.id} asContractor />
+                  </div>
+                </details>
               </div>
             ))}
           </CardContent>

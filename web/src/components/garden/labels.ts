@@ -1,4 +1,4 @@
-import type { AttendanceStatus, JobKind, JobStatus } from '@/api/types'
+import type { AttendanceStatus, JobKind, JobStatus, PriceItem, QuoteStatus } from '@/api/types'
 
 export const jobStatusLabels: Record<JobStatus, string> = {
   inquiry: 'Poptávka',
@@ -73,3 +73,28 @@ export function monthEnd(month: string): string {
   const d = new Date(y!, m!, 0)
   return `${month}-${String(d.getDate()).padStart(2, '0')}`
 }
+
+export const itemKindLabels: Record<PriceItem['kind'], string> = {
+  work: 'Práce',
+  material: 'Materiál',
+  machine: 'Mechanizace',
+  transport: 'Doprava',
+  subcontract: 'Subdodávka',
+  other: 'Ostatní',
+}
+
+export const quoteStatusLabels: Record<QuoteStatus, string> = {
+  draft: 'Rozpracovaná',
+  sent: 'Odeslaná',
+  accepted: 'Přijatá',
+  rejected: 'Odmítnutá',
+  superseded: 'Nahrazená',
+}
+export const quoteStatusTone: Record<QuoteStatus, string> = {
+  draft: 'bg-muted text-muted-foreground',
+  sent: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
+  accepted: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300',
+  rejected: 'bg-destructive/10 text-destructive',
+  superseded: 'bg-muted text-muted-foreground line-through',
+}
+

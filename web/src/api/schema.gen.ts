@@ -536,6 +536,44 @@ export interface paths {
         patch: operations["patch-api-accounts-by-slug-jobs-by-id"];
         trace?: never;
     };
+    "/api/accounts/{slug}/jobs/{id}/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List API accounts by slug jobs by ID photos */
+        get: operations["list-api-accounts-by-slug-jobs-by-id-photos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/jobs/{id}/quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List API accounts by slug jobs by ID quotes */
+        get: operations["list-api-accounts-by-slug-jobs-by-id-quotes"];
+        put?: never;
+        /**
+         * Post API accounts by slug jobs by ID quotes
+         * @description Allowed roles: owner, admin, member.
+         */
+        post: operations["post-api-accounts-by-slug-jobs-by-id-quotes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{slug}/jobs/{id}/status": {
         parameters: {
             query?: never;
@@ -704,6 +742,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{slug}/me/jobs/{id}/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List API accounts by slug me jobs by ID photos
+         * @description Allowed roles: owner, admin, accountant, member, contractor.
+         */
+        get: operations["list-api-accounts-by-slug-me-jobs-by-id-photos"];
+        put?: never;
+        /**
+         * Post API accounts by slug me jobs by ID photos
+         * @description Allowed roles: owner, admin, accountant, member, contractor.
+         */
+        post: operations["post-api-accounts-by-slug-me-jobs-by-id-photos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/me/photos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get API accounts by slug me photos by ID
+         * @description Allowed roles: owner, admin, accountant, member, contractor.
+         */
+        get: operations["get-api-accounts-by-slug-me-photos-by-id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{slug}/members": {
         parameters: {
             query?: never;
@@ -760,6 +842,116 @@ export interface paths {
          * @description Allowed roles: owner, admin.
          */
         patch: operations["patch-api-accounts-by-slug-members-by-user-id"];
+        trace?: never;
+    };
+    "/api/accounts/{slug}/price-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API accounts by slug price items */
+        get: operations["get-api-accounts-by-slug-price-items"];
+        put?: never;
+        /**
+         * Post API accounts by slug price items
+         * @description Allowed roles: owner, admin, member.
+         */
+        post: operations["post-api-accounts-by-slug-price-items"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/price-items/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post API accounts by slug price items import
+         * @description Allowed roles: owner, admin, member.
+         */
+        post: operations["post-api-accounts-by-slug-price-items-import"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/price-items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put API accounts by slug price items by ID
+         * @description Allowed roles: owner, admin, member.
+         */
+        put: operations["put-api-accounts-by-slug-price-items-by-id"];
+        post?: never;
+        /**
+         * Delete API accounts by slug price items by ID
+         * @description Allowed roles: owner, admin, member.
+         */
+        delete: operations["delete-api-accounts-by-slug-price-items-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/quotes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API accounts by slug quotes by ID */
+        get: operations["get-api-accounts-by-slug-quotes-by-id"];
+        /**
+         * Put API accounts by slug quotes by ID
+         * @description Allowed roles: owner, admin, member.
+         */
+        put: operations["put-api-accounts-by-slug-quotes-by-id"];
+        post?: never;
+        /**
+         * Delete API accounts by slug quotes by ID
+         * @description Allowed roles: owner, admin, member.
+         */
+        delete: operations["delete-api-accounts-by-slug-quotes-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{slug}/quotes/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post API accounts by slug quotes by ID status
+         * @description Allowed roles: owner, admin, member.
+         */
+        post: operations["post-api-accounts-by-slug-quotes-by-id-status"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/accounts/{slug}/search": {
@@ -1616,9 +1808,11 @@ export interface components {
             /** Format: int64 */
             owner_id: number;
             /** @enum {string} */
-            owner_type: "client" | "site" | "contractor" | "account";
+            owner_type: "client" | "site" | "contractor" | "job" | "account";
             /** Format: int64 */
             size: number;
+            /** @description Name of the uploader (job photos) */
+            uploaded_by?: string;
         };
         AttendanceClose: {
             /**
@@ -2314,6 +2508,11 @@ export interface components {
             user_exists: boolean;
         };
         Job: {
+            /**
+             * Format: int64
+             * @description Accepted offer (quote version)
+             */
+            accepted_quote_id?: number;
             /** Format: int64 */
             client_id: number;
             client_name: string;
@@ -2499,6 +2698,15 @@ export interface components {
             /** Format: int64 */
             total: number;
         };
+        ListResponsePriceItem: {
+            items: components["schemas"]["PriceItem"][];
+            /** Format: int64 */
+            page: number;
+            /** Format: int64 */
+            per_page: number;
+            /** Format: int64 */
+            total: number;
+        };
         ListResponseSite: {
             items: components["schemas"]["Site"][];
             /** Format: int64 */
@@ -2607,6 +2815,212 @@ export interface components {
         };
         PasswordResetRequest: {
             email: string;
+        };
+        PriceItem: {
+            archived: boolean;
+            category: string;
+            code: string;
+            /** Format: int64 */
+            id: number;
+            /** @enum {string} */
+            kind: "work" | "material" | "machine" | "transport" | "subcontract" | "other";
+            /** Format: int32 */
+            markup_bps: number;
+            name: string;
+            norm_hours: string;
+            /**
+             * Format: int64
+             * @description Effective sale price per unit (unit_price or cost + markup)
+             */
+            sale_price: number;
+            unit: string;
+            /** Format: int64 */
+            unit_cost: number;
+            /** Format: int64 */
+            unit_price?: number;
+            /** Format: date-time */
+            updated_at: string;
+            /** Format: int32 */
+            vat_rate_bps: number;
+            /** Format: int32 */
+            waste_bps: number;
+        };
+        PriceItemImport: {
+            items: components["schemas"]["PriceItemInput"][] | null;
+        };
+        PriceItemInput: {
+            archived?: boolean;
+            category?: string;
+            code?: string;
+            /** @enum {string} */
+            kind: "work" | "material" | "machine" | "transport" | "subcontract" | "other";
+            /** Format: int32 */
+            markup_bps?: number;
+            name: string;
+            /** @description Labour hours per unit, decimal string */
+            norm_hours?: string;
+            unit?: string;
+            /** Format: int64 */
+            unit_cost?: number;
+            /**
+             * Format: int64
+             * @description Omitted = unit_cost + markup
+             */
+            unit_price?: number;
+            /**
+             * Format: int32
+             * @description Omitted = account default
+             */
+            vat_rate_bps?: number;
+            /** Format: int32 */
+            waste_bps?: number;
+        };
+        Quote: {
+            /** Format: date-time */
+            accepted_at?: string;
+            /** Format: int64 */
+            cost: number;
+            /** Format: int32 */
+            discount_bps: number;
+            /** Format: int64 */
+            gross: number;
+            hours: string;
+            /** Format: int64 */
+            id: number;
+            intro: string;
+            items: components["schemas"]["QuoteLine"][];
+            job: components["schemas"]["QuoteJob"];
+            /** Format: int64 */
+            job_id: number;
+            /** Format: int64 */
+            margin: number;
+            /** Format: int32 */
+            margin_bps: number;
+            /** Format: int64 */
+            net: number;
+            note: string;
+            /** @example Z2026-001/v2 */
+            number: string;
+            /** @description Computed lines and totals */
+            result: components["schemas"]["CalcResult"];
+            /** Format: date-time */
+            sent_at?: string;
+            /** @enum {string} */
+            status: "draft" | "sent" | "accepted" | "rejected" | "superseded";
+            title: string;
+            /** Format: date-time */
+            updated_at: string;
+            valid_until?: string;
+            /** Format: int64 */
+            version: number;
+        };
+        QuoteCreate: {
+            /**
+             * Format: int64
+             * @description Quote version to copy (new version of the offer)
+             */
+            copy_from?: number;
+            title?: string;
+        };
+        QuoteInput: {
+            /** Format: int32 */
+            discount_bps?: number;
+            intro?: string;
+            items: components["schemas"]["QuoteLine"][];
+            note?: string;
+            title: string;
+            /** @description YYYY-MM-DD */
+            valid_until?: string;
+        };
+        QuoteJob: {
+            client_address: string;
+            client_email: string;
+            client_name: string;
+            client_phone: string;
+            client_registration_no: string;
+            /** Format: int64 */
+            id: number;
+            number: string;
+            site_address?: string;
+            site_name?: string;
+            status: string;
+            title: string;
+        };
+        QuoteLine: {
+            /** Format: int32 */
+            discount_bps?: number;
+            /** @enum {string} */
+            kind: "work" | "material" | "machine" | "transport" | "subcontract" | "other";
+            /** Format: int32 */
+            markup_bps?: number;
+            name: string;
+            /**
+             * @description Labour hours per unit as a decimal string
+             * @example 0.05
+             */
+            norm_hours?: string;
+            note?: string;
+            /** Format: int64 */
+            price_item_id?: number;
+            /**
+             * @description Decimal string, max 3 decimals; comma accepted
+             * @example 12.5
+             */
+            quantity: string;
+            section?: string;
+            unit?: string;
+            /**
+             * Format: int64
+             * @description Purchase price per unit
+             */
+            unit_cost?: number;
+            /**
+             * Format: int64
+             * @description Sale price per unit; omitted = unit_cost + markup
+             */
+            unit_price?: number;
+            /** Format: int32 */
+            vat_rate_bps: number;
+            /**
+             * Format: int32
+             * @description Waste allowance, raises billed and purchased quantity
+             */
+            waste_bps?: number;
+        };
+        QuoteStatusChange: {
+            /** @enum {string} */
+            status: "draft" | "sent" | "accepted" | "rejected";
+        };
+        QuoteSummary: {
+            /** Format: date-time */
+            accepted_at?: string;
+            /** Format: int64 */
+            cost: number;
+            /** Format: int64 */
+            gross: number;
+            hours: string;
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            job_id: number;
+            /** Format: int64 */
+            margin: number;
+            /** Format: int32 */
+            margin_bps: number;
+            /** Format: int64 */
+            net: number;
+            /** @example Z2026-001/v2 */
+            number: string;
+            /** Format: date-time */
+            sent_at?: string;
+            /** @enum {string} */
+            status: "draft" | "sent" | "accepted" | "rejected" | "superseded";
+            title: string;
+            /** Format: date-time */
+            updated_at: string;
+            valid_until?: string;
+            /** Format: int64 */
+            version: number;
         };
         RecoveryCodes: {
             /** @description Shown only now; empty when the user already has codes */
@@ -2976,7 +3390,7 @@ export interface operations {
             query?: {
                 page?: number;
                 per_page?: number;
-                owner_type?: "client" | "site" | "contractor" | "account";
+                owner_type?: "client" | "site" | "contractor" | "job" | "account";
                 owner_id?: number;
             };
             header?: never;
@@ -3032,7 +3446,7 @@ export interface operations {
                      */
                     owner_id: number;
                     /** @enum {string} */
-                    owner_type: "client" | "site" | "contractor" | "account";
+                    owner_type: "client" | "site" | "contractor" | "job" | "account";
                 };
             };
         };
@@ -4295,6 +4709,109 @@ export interface operations {
             };
         };
     };
+    "list-api-accounts-by-slug-jobs-by-id-photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Attachment"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-api-accounts-by-slug-jobs-by-id-quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteSummary"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-jobs-by-id-quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteCreate"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Quote"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "post-api-accounts-by-slug-jobs-by-id-status": {
         parameters: {
             query?: never;
@@ -4642,6 +5159,113 @@ export interface operations {
             };
         };
     };
+    "list-api-accounts-by-slug-me-jobs-by-id-photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Attachment"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-me-jobs-by-id-photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description JPEG, PNG, WebP or HEIC, max 20 MB
+                     */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Attachment"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-api-accounts-by-slug-me-photos-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Photo content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "get-api-accounts-by-slug-members": {
         parameters: {
             query?: {
@@ -4768,6 +5392,322 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Member"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-api-accounts-by-slug-price-items": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+                query?: string;
+                kind?: "work" | "material" | "machine" | "transport" | "subcontract" | "other" | "";
+                archived?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListResponsePriceItem"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-price-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceItemInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceItem"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-price-items-import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceItemImport"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListResponsePriceItem"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "put-api-accounts-by-slug-price-items-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceItemInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceItem"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-api-accounts-by-slug-price-items-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-api-accounts-by-slug-quotes-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Quote"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "put-api-accounts-by-slug-quotes-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Quote"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-api-accounts-by-slug-quotes-by-id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "post-api-accounts-by-slug-quotes-by-id-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account slug */
+                slug: string;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteStatusChange"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Quote"];
                 };
             };
             /** @description Error */

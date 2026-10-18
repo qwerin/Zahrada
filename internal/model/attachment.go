@@ -8,6 +8,7 @@ const (
 	OwnerClient     = "client"
 	OwnerSite       = "site" // photos of a garden
 	OwnerContractor = "contractor"
+	OwnerJob        = "job" // photos and documents of a job (contractors add photos from the field)
 )
 
 // Attachment is file metadata; the content lives in storage under StorageKey.
@@ -20,5 +21,6 @@ type Attachment struct {
 	ContentType string `gorm:"not null"` // sniffed from the content, never taken from the client
 	Size        int64  `gorm:"not null"`
 	StorageKey  string `gorm:"not null;uniqueIndex"`
+	UploadedBy  *uint  // user who uploaded it (shown on job photos)
 	CreatedAt   time.Time
 }

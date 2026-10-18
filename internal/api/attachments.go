@@ -35,18 +35,19 @@ const uploadOverhead = 64 << 10
 
 type Attachment struct {
 	ID          uint      `json:"id"`
-	OwnerType   string    `json:"owner_type" enum:"client,site,contractor,account"`
+	OwnerType   string    `json:"owner_type" enum:"client,site,contractor,job,account"`
 	OwnerID     uint      `json:"owner_id"`
 	Filename    string    `json:"filename"`
 	ContentType string    `json:"content_type" doc:"Detected from the content"`
 	Size        int64     `json:"size"`
+	UploadedBy  string    `json:"uploaded_by,omitempty" doc:"Name of the uploader (job photos)"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 // AttachmentUpload is the multipart/form-data body of POST /attachments.
 type AttachmentUpload struct {
 	File      huma.FormFile `form:"file" required:"true" doc:"PDF, PNG, JPEG, WebP, HEIC or XML, max 20 MB"`
-	OwnerType string        `form:"owner_type" required:"true" enum:"client,site,contractor,account"`
+	OwnerType string        `form:"owner_type" required:"true" enum:"client,site,contractor,job,account"`
 	OwnerID   uint          `form:"owner_id" required:"true" doc:"ID of the owner record; for owner_type=account ignored (current account)"`
 }
 
@@ -57,7 +58,7 @@ func toAttachment(a *model.Attachment) Attachment {
 
 // ownerTables maps owner types to the table holding the owner record.
 var ownerTables = map[string]string{
-	model.OwnerClient: "clients", model.OwnerSite: "sites", model.OwnerContractor: "contractors",
+	model.OwnerClient: "clients", model.OwnerSite: "sites", model.OwnerContractor: "contractors", model.OwnerJob: "jobs",
 }
 
 func (s *server) registerAttachments(g huma.API) {
@@ -173,8 +174,8 @@ func (s *server) uploadAttachment(ctx context.Context, in *struct {
 	if f.Size == 0 {
 		return nil, invalid("file", "file is empty")
 	}
-	acc := auth.AccountFrom(ctx)
 	if data.OwnerType == model.OwnerAccount {
+		acc := auth.AccountFrom(ctx)
 		// account files (logo, stamp) are settings: managers only
 		if err := auth.RequireRole(ctx, auth.RolesManagers...); err != nil {
 			return nil, err
@@ -187,6 +188,17 @@ func (s *server) uploadAttachment(ctx context.Context, in *struct {
 		return nil, err
 	}
 
+	m, err := s.storeUpload(ctx, f, data.OwnerType, data.OwnerID, false)
+	if err != nil {
+		return nil, err
+	}
+	return &Out[Attachment]{Body: toAttachment(m)}, nil
+}
+
+// storeUpload sniffs, stores and records an uploaded file of an owner (checked by the caller).
+// imagesOnly restricts it to photos (contractor uploads).
+func (s *server) storeUpload(ctx context.Context, f huma.FormFile, ownerType string, ownerID uint, imagesOnly bool) (*model.Attachment, error) {
+	acc := auth.AccountFrom(ctx)
 	head := make([]byte, 512)
 	n, err := io.ReadFull(f, head)
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
@@ -196,14 +208,18 @@ func (s *server) uploadAttachment(ctx context.Context, in *struct {
 	if ct == "" {
 		return nil, huma.NewError(http.StatusUnsupportedMediaType, "unsupported file type (allowed: PDF, PNG, JPEG, WebP, HEIC, XML)")
 	}
+	if imagesOnly && !strings.HasPrefix(ct, "image/") {
+		return nil, huma.NewError(http.StatusUnsupportedMediaType, "only photos are allowed (JPEG, PNG, WebP, HEIC)")
+	}
 	if _, err := f.Seek(0, io.SeekStart); err != nil {
 		return nil, huma.Error500InternalServerError("cannot read file", err)
 	}
 
+	uid := auth.UserFrom(ctx).ID
 	rnd := make([]byte, 16)
 	_, _ = rand.Read(rnd)
 	m := model.Attachment{
-		AccountID: acc.ID, OwnerType: data.OwnerType, OwnerID: data.OwnerID,
+		AccountID: acc.ID, OwnerType: ownerType, OwnerID: ownerID, UploadedBy: &uid,
 		Filename: cleanFilename(f.Filename), ContentType: ct, Size: f.Size,
 		StorageKey: fmt.Sprintf("%d/%s", acc.ID, hex.EncodeToString(rnd)),
 	}
@@ -214,12 +230,12 @@ func (s *server) uploadAttachment(ctx context.Context, in *struct {
 		_ = s.deps.Storage.Delete(context.WithoutCancel(ctx), m.StorageKey)
 		return nil, dbErr(err, "attachment")
 	}
-	return &Out[Attachment]{Body: toAttachment(&m)}, nil
+	return &m, nil
 }
 
 func (s *server) listAttachments(ctx context.Context, in *struct {
 	PageParams
-	OwnerType string `query:"owner_type" enum:"client,site,contractor,account"`
+	OwnerType string `query:"owner_type" enum:"client,site,contractor,job,account"`
 	OwnerID   uint   `query:"owner_id"`
 }) (*Out[ListResponse[Attachment]], error) {
 	q := s.scoped(ctx).Order("id")
@@ -280,6 +296,11 @@ func (s *server) downloadAttachment(ctx context.Context, in *struct {
 	if err != nil {
 		return nil, err
 	}
+	return s.streamAttachment(ctx, m, in.Inline)
+}
+
+// streamAttachment sends the content of m (download or inline view).
+func (s *server) streamAttachment(ctx context.Context, m *model.Attachment, inline bool) (*huma.StreamResponse, error) {
 	rc, err := s.deps.Storage.Get(ctx, m.StorageKey)
 	if errors.Is(err, storage.ErrNotFound) {
 		return nil, notFound("attachment content")
@@ -287,7 +308,7 @@ func (s *server) downloadAttachment(ctx context.Context, in *struct {
 		return nil, huma.Error500InternalServerError("cannot read file", err)
 	}
 	disposition := "attachment"
-	if in.Inline {
+	if inline {
 		disposition = "inline"
 	}
 	return &huma.StreamResponse{Body: func(hc huma.Context) {

@@ -14,5 +14,6 @@ func All() []any {
 		&Invitation{}, &Attachment{},
 		&Event{}, &Todo{}, &Webhook{}, &WebhookDelivery{},
 		&Client{}, &Site{}, &Contractor{}, &Job{}, &JobContractor{}, &AttendanceEntry{},
+		&PriceItem{}, &Quote{}, &QuoteItem{},
 	}
 }
