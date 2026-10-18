@@ -4,7 +4,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 
 ## Sestaví Go binárku (bez CGO)
 build:
-	CGO_ENABLED=0 go build -ldflags "-X main.version=$(VERSION)" -o bin/zahrada ./cmd/server/
+	CGO_ENABLED=0 go build -ldflags "-X github.com/qwerin/zahrada/internal/api.Version=$(VERSION)" -o bin/zahrada ./cmd/server/
 
 ## Sestaví frontend i backend a spustí na :8080
 run: build-web build

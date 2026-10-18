@@ -1,0 +1,105 @@
+package api
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/danielgtaylor/huma/v2"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	"github.com/qwerin/zahrada/internal/auth"
+)
+
+// Out is the generic huma output: the body is the JSON response as-is.
+type Out[T any] struct {
+	Body T
+}
+
+// NoContent is the output of operations answering 204.
+type NoContent struct{}
+
+// status sets the operation's success status, e.g. huma.Post(g, "/x", h, status(201)).
+func status(code int) func(*huma.Operation) {
+	return func(o *huma.Operation) { o.DefaultStatus = code }
+}
+
+// scoped returns a query limited to the current account (from the {slug} path).
+func (s *server) scoped(ctx context.Context) *gorm.DB {
+	return s.db.WithContext(ctx).Scopes(inAccount(ctx))
+}
+
+// inAccount is a GORM scope filtering by the current account; use it inside
+// transactions: tx.Scopes(inAccount(ctx)).First(&inv, id).
+func inAccount(ctx context.Context) func(*gorm.DB) *gorm.DB {
+	id := auth.AccountFrom(ctx).ID
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(clause.Eq{Column: clause.Column{Table: clause.CurrentTable, Name: "account_id"}, Value: id})
+	}
+}
+
+// apply copies *src into *dst when src is non-nil (PATCH semantics).
+func apply[T any](dst *T, src *T) {
+	if src != nil {
+		*dst = *src
+	}
+}
+
+// dbErr maps a GORM error to an HTTP error: record not found → 404,
+// unique violation → 409, anything else → 500. what names the resource.
+func dbErr(err error, what string) error {
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		return notFound(what)
+	case errors.Is(err, gorm.ErrDuplicatedKey):
+		return apiError(http.StatusConflict, CodeAlreadyExists, what+" already exists")
+	default:
+		return huma.Error500InternalServerError("database error", err)
+	}
+}
+
+// notFound is the 404 for missing and foreign records alike.
+func notFound(what string) error {
+	return huma.Error404NotFound(what + " not found")
+}
+
+// conflict is the 409 for actions not allowed in the current state; code is
+// the machine-readable reason (Code* in errors.go).
+func conflict(code, msg string) error {
+	return apiError(http.StatusConflict, code, msg)
+}
+
+// invalid is a 422 pointing at one body field, e.g. invalid("iban", "invalid checksum").
+func invalid(field, msg string) error {
+	return huma.NewError(http.StatusUnprocessableEntity, "validation failed",
+		&huma.ErrorDetail{Location: "body." + field, Message: msg})
+}
+
+// validDate reports whether s is a valid "YYYY-MM-DD" date.
+func validDate(s string) bool {
+	_, err := time.Parse(time.DateOnly, s)
+	return err == nil && len(s) == 10
+}
+
+func defaultStr(v, def string) string {
+	if v == "" {
+		return def
+	}
+	return v
+}
+
+// dbErrOrNil is dbErr for a possibly nil error.
+func dbErrOrNil(err error, what string) error {
+	if err == nil {
+		return nil
+	}
+	return dbErr(err, what)
+}
+
+// accountKey is the rate-limit key of the current account.
+func accountKey(ctx context.Context) string {
+	return "a" + strconv.FormatUint(uint64(auth.AccountFrom(ctx).ID), 10)
+}
