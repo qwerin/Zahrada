@@ -46,7 +46,7 @@ function MyWorkPage() {
   const clockOut = useClockOut(slug)
   const submit = useSubmitMyAttendance(slug)
   const [jobId, setJobId] = useState('')
-  const [out, setOut] = useState({ break_min: '30', km: '0', note: '' })
+  const [out, setOut] = useState({ break_min: '0', km: '0', note: '' })
   const [editing, setEditing] = useState<AttendanceEntry | 'new' | null>(null)
 
   if (me.isError) return <PageError error={me.error} reset={() => void me.refetch()} />
@@ -216,7 +216,7 @@ function MyEntryDialog({ entry, today, onClose }: { entry: AttendanceEntry | nul
     work_on: entry?.work_on ?? today ?? '',
     start: entry?.start ?? '07:00',
     end: entry?.end ?? '15:30',
-    break_min: String(entry?.break_min ?? 30),
+    break_min: String(entry?.break_min ?? 0),
     km: String(entry?.km ?? 0),
     note: entry?.note ?? '',
   })

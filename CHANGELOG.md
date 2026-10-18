@@ -36,6 +36,7 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 - **Připojené aplikace** — uvidíte a kdykoli odpojíte v *Nastavení → API tokeny → Připojené aplikace*. Změna hesla je odpojí všechny.
 
 ### Ostatní
+- **Přestávka je předvyplněná na 0 minut** — při odchodu i při ručním zápisu docházky. Když přestávka byla, stačí ji dopsat.
 - **Klienti na mobilu** — najdete je v menu *Více*. Nového klienta i se zahradou založíte rovnou při zakládání zakázky.
 - **Novinky** — tato stránka. Když přibude něco nového, uvidíte u položky *Novinky* značku.
 

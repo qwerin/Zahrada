@@ -296,7 +296,7 @@ function EntryDialog({ entry, defaultContractor, onClose }: { entry: AttendanceE
     work_on: entry?.work_on ?? todayISO(),
     start: entry?.start ?? '07:00',
     end: entry?.end ?? '15:30',
-    break_min: String(entry?.break_min ?? 30),
+    break_min: String(entry?.break_min ?? 0),
     km: String(entry?.km ?? 0),
     note: entry?.note ?? '',
   })
