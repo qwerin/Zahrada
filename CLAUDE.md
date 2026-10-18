@@ -7,18 +7,19 @@ which it integrates with for invoices and expenses.
 **`docs/SPEC.md` is the binding contract** (data model, rules, API, phases). Read it before changing
 anything; record any deviation in its "Otevřené otázky" section. User-facing texts are Czech.
 
-## Current state: phase B (bootstrap)
+## Current state
 
-- Done: pure domain packages with table tests — `internal/calc` (quote engine), `internal/attendance`
-  (attendance rules), `internal/recurrence` (maintenance schedules + Czech holidays).
-- Bootstrap server `cmd/server` on stdlib `net/http` (`/api/health`, `/api/calc/preview`, SPA, `healthcheck`
-  subcommand). No dependencies yet, so there is no `go.sum`.
-- Bootstrap SPA in `web/` (Vite + React, plain CSS) — a calculation preview page.
-- Next: **phase F0** (SPEC §8) — port the platform layer from NanoFaktura. Clone it next to this repo and
-  copy packages, then rename `NANOFAKTURA_*` → `ZAHRADA_*`, `nf_` tokens → `zh_`, remove invoicing code,
-  add the `contractor` role. Replace `cmd/server/api.go` with huma operations; keep `healthcheck`
-  and the `time/tzdata` import. Port NanoFaktura's CLAUDE.md sections (adding endpoints, roles, errors,
-  tests harness) here once the code is in.
+- Platform layer ported from NanoFaktura (auth, 2FA, accounts, members, invitations, attachments,
+  events, todos, search, mail, scheduler) without invoicing. New role `contractor` (SPEC §3): only
+  operations declaring `auth.ForEveryone` (account detail, `/me/*`); undeclared = staff only.
+- Done (SPEC §4.2–4.8): clients + sites, contractors (+ invitation linking a login), jobs (numbering,
+  status graph, assignment), attendance (staff CRUD, approvals, close, summary, CSV; contractor
+  clock-in/out and own entries), calc preview. Web: dashboard, jobs, clients, contractors, attendance,
+  „Moje práce“, calc, settings.
+- Not yet: price list + assemblies, saved quotes with versions/PDF, maintenance tasks + visit generator
+  and weekly plan, job costs/profitability, NanoFaktura integration (SPEC §8 F2, F3, F5).
+- Tests: `internal/api/garden_test.go` covers the garden domain, roles and tenant isolation.
+  SQLite runs single-connection: inside a transaction use only `tx` (helpers take a `db` param).
 
 ## Commands
 
