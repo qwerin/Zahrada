@@ -7,6 +7,7 @@ import { gardenQueries, useCreateClient, useCreateJob } from '@/api/queries/gard
 import type { CreateJobInput, Job, JobKind } from '@/api/types'
 import { EmptyState } from '@/components/empty-state'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
+import { AssignContractorsDialog, ContractorChips } from '@/components/garden/job-contractors'
 import { jobKindLabels, jobStatusLabels, jobStatusTone } from '@/components/garden/labels'
 import { PageBody, PageHeader } from '@/components/page-header'
 import { PageError } from '@/components/page-states'
@@ -21,6 +22,7 @@ import { formatDate } from '@/lib/date'
 const searchSchema = z.object({
   query: z.string().optional().catch(undefined),
   status: z.enum(['open', 'done', 'all']).optional().catch(undefined),
+  contractor: z.number().optional().catch(undefined),
   /** ID klienta → otevře dialog nové zakázky s předvyplněným klientem */
   new: z.number().optional().catch(undefined),
 })
@@ -46,7 +48,9 @@ function JobsPage() {
   const { canEdit } = useCurrentAccount()
   const tab = search.status ?? 'open'
   const [creating, setCreating] = useState(search.new !== undefined)
-  const list = useQuery(gardenQueries.jobs(slug, { query: search.query, status: statusFilter[tab], per_page: 200 }))
+  const list = useQuery(gardenQueries.jobs(slug, { query: search.query, status: statusFilter[tab], contractor_id: search.contractor, per_page: 200 }))
+  const contractors = useQuery(gardenQueries.contractors(slug))
+  const byId = new Map((contractors.data?.items ?? []).map((c) => [c.id, c]))
   const open = (j: Job) => void navigate({ to: '/a/$slug/jobs/$jobId', params: { slug, jobId: j.id } })
 
   return (
@@ -67,6 +71,17 @@ function JobsPage() {
               onChange={(e) => void navigate({ search: (p) => ({ ...p, query: e.target.value || undefined }), replace: true })}
             />
           </InputGroup>
+          <select
+            aria-label="Dodavatel"
+            className="h-11 rounded-lg border border-input bg-transparent px-2 text-base md:h-8 md:text-sm dark:bg-input/30"
+            value={search.contractor ?? ''}
+            onChange={(e) => void navigate({ search: (p) => ({ ...p, contractor: e.target.value ? Number(e.target.value) : undefined }), replace: true })}
+          >
+            <option value="">Všichni dodavatelé</option>
+            {(contractors.data?.items ?? []).map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
           <Tabs value={tab} onValueChange={(v) => void navigate({ search: (p) => ({ ...p, status: v as 'open' | 'done' | 'all' }), replace: true })}>
             <TabsList className="h-11! w-full sm:w-auto md:h-8!">
               <TabsTrigger value="open" className="px-3">Rozpracované</TabsTrigger>
@@ -91,6 +106,7 @@ function JobsPage() {
               { id: 'client', header: 'Klient', cell: (j) => [j.client_name, j.site_name].filter(Boolean).join(' · ') },
               { id: 'kind', header: 'Druh', cell: (j) => jobKindLabels[j.kind] },
               { id: 'planned', header: 'Termín', cell: plannedRange },
+              { id: 'who', header: 'Dodavatelé', cell: (j) => <ContractorChips ids={j.contractor_ids} contractors={byId} /> },
               { id: 'status', header: 'Stav', cell: (j) => <StatusPill tone={jobStatusTone[j.status]}>{jobStatusLabels[j.status]}</StatusPill> },
             ]}
             renderCard={(j) => (
@@ -102,6 +118,7 @@ function JobsPage() {
                   </p>
                   <p className="truncate font-medium">{j.title}</p>
                   <p className="truncate text-sm text-muted-foreground">{[j.client_name, plannedRange(j)].filter(Boolean).join(' · ')}</p>
+                  <div className="mt-1"><ContractorChips ids={j.contractor_ids} contractors={byId} /></div>
                 </div>
                 <ChevronRightIcon className="size-4 text-muted-foreground" />
               </div>
@@ -137,6 +154,7 @@ function NewJobDialog({ clientId, onClose, onCreated }: { clientId?: number; onC
   const contractors = useQuery(gardenQueries.contractors(slug, 'true'))
   const create = useCreateJob(slug)
   const createClient = useCreateClient(slug)
+  const [picking, setPicking] = useState(false)
   const [newClient, setNewClient] = useState({ name: '', phone: '', street: '', city: '' })
   const [f, setF] = useState({
     client_id: clientId ? String(clientId) : '', site_id: '', kind: 'realization' as JobKind, title: '',
@@ -223,28 +241,25 @@ function NewJobDialog({ clientId, onClose, onCreated }: { clientId?: number; onC
         <div />
         <TextField label="Termín od" name="planned_from" type="date" value={f.planned_from} onChange={set('planned_from')} />
         <TextField label="Termín do" name="planned_to" type="date" value={f.planned_to} onChange={set('planned_to')} />
-        <fieldset className="grid gap-1.5 sm:col-span-2">
-          <legend className="mb-1 text-sm font-medium">Dodavatelé</legend>
-          <div className="flex flex-wrap gap-2">
-            {(contractors.data?.items ?? []).map((c) => {
-              const on = f.contractor_ids.includes(c.id)
-              return (
-                <Button
-                  key={c.id}
-                  type="button"
-                  size="sm"
-                  variant={on ? 'default' : 'outline'}
-                  onClick={() => setF({ ...f, contractor_ids: on ? f.contractor_ids.filter((x) => x !== c.id) : [...f.contractor_ids, c.id] })}
-                >
-                  {c.name}
-                </Button>
-              )
-            })}
-            {contractors.data?.items.length === 0 && <p className="text-sm text-muted-foreground">Zatím žádní dodavatelé.</p>}
+        <div className="grid gap-1.5 sm:col-span-2">
+          <span className="text-sm font-medium">Dodavatelé</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <ContractorChips ids={f.contractor_ids} contractors={new Map((contractors.data?.items ?? []).map((c) => [c.id, c]))} />
+            <Button type="button" size="sm" variant="outline" onClick={() => setPicking(true)}>
+              {f.contractor_ids.length ? 'Změnit' : 'Přiřadit'}
+            </Button>
           </div>
-        </fieldset>
+        </div>
         <TextAreaField label="Poznámka" name="note" value={f.note} onChange={set('note')} className="sm:col-span-2" />
       </FormGrid>
+      {picking && (
+        <AssignContractorsDialog
+          slug={slug}
+          selected={f.contractor_ids}
+          onClose={() => setPicking(false)}
+          onSave={(ids) => { setF({ ...f, contractor_ids: ids }); setPicking(false) }}
+        />
+      )}
     </ResponsiveDialog>
   )
 }

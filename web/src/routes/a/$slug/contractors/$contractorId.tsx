@@ -7,6 +7,7 @@ import { gardenQueries, useDeleteContractor, useUpdateContractor } from '@/api/q
 import type { Contractor } from '@/api/types'
 import { HistorySection } from '@/components/events/timeline'
 import { FormGrid, TextAreaField, TextField } from '@/components/garden/form'
+import { ContractorJobsCard } from '@/components/garden/job-contractors'
 import { ContractorAccessCard } from '@/components/garden/login-link'
 import { ContractorPaymentsCard } from '@/components/garden/payments'
 import { PageBody, PageHeader, type PageAction } from '@/components/page-header'
@@ -56,6 +57,7 @@ function ContractorPage() {
       />
       <PageBody className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="grid content-start gap-4">
+          <ContractorJobsCard slug={slug} contractor={c} canEdit={canEdit} />
           <ContractorPaymentsCard slug={slug} contractorId={c.id} canEdit={canEdit} />
           <ContractorAccessCard slug={slug} contractor={c} canManage={canManageSettings} />
           <ContractorForm key={c.updated_at} contractor={c} disabled={!canEdit} />

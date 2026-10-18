@@ -20,6 +20,12 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 - **Připravené práce a materiály** — v menu *Ceník* si uložte položky s nákupní i prodejní cenou, přirážkou, ztratným a pracností. Do kalkulace je pak přidáte jedním klepnutím.
 - **Vložení z textu** — celý ceník nebo položky kalkulace vložíte najednou: tabulku z chatu s Claude, řádky z Excelu nebo řádky typu „Výsadba keře 24 ks × 180 Kč“. Nadpisy se stanou oddíly. Nejlépe funguje tabulka se sloupci *Položka | Množství | Jednotka | Cena za j.*
 
+### Přiřazení dodavatelů k zakázkám
+- **Karta Dodavatelé v zakázce** — hned nahoře v detailu zakázky vidíte, kdo na ní pracuje, kolik hodin už odpracoval, a můžete mu rovnou zavolat. Tlačítkem *Přiřadit* dodavatele zaškrtnete, křížkem odeberete.
+- **Kdo je volný** — při přiřazování u každého dodavatele vidíte, na kolika rozpracovaných zakázkách už je.
+- **Z druhé strany** — v detailu dodavatele jsou jeho rozpracované zakázky a tlačítko *Přiřadit k zakázce*.
+- **Seznam zakázek** ukazuje přiřazené dodavatele a dá se filtrovat podle dodavatele.
+
 ### Dodavatelé bez e-mailu
 - **Přidání dodavatele v týmu** — v *Nastavení → Tým* klikněte na *Přidat dodavatele*. E-mail je nepovinný: s e-mailem mu přijde pozvánka, bez e-mailu dostane přihlášení do telefonu.
 - **Přihlášení QR kódem nebo odkazem** — dodavatel naskenuje QR kód fotoaparátem telefonu (nebo mu odkaz pošlete SMS či WhatsAppem) a je přihlášený, žádné heslo si nepamatuje. Odkaz funguje jednou a platí 7 dní. Přihlášení pak vydrží, dokud aplikaci používá.

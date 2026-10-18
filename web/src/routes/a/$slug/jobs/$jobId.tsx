@@ -8,6 +8,7 @@ import type { Job, JobKind, JobStatus } from '@/api/types'
 import { Attachments } from '@/components/attachments/attachments'
 import { JOB_DOCUMENT_ACCEPT } from '@/components/attachments/files'
 import { HistorySection } from '@/components/events/timeline'
+import { JobContractorsCard } from '@/components/garden/job-contractors'
 import { JobPhotos } from '@/components/garden/photos'
 import { FormGrid, SelectField, StatusPill, TextAreaField, TextField } from '@/components/garden/form'
 import {
@@ -56,7 +57,6 @@ function JobPage() {
   const { canEdit } = useCurrentAccount()
   const navigate = useNavigate()
   const q = useQuery(gardenQueries.job(slug, jobId))
-  const contractors = useQuery(gardenQueries.contractors(slug))
   const att = useQuery(gardenQueries.attendance(slug, { job_id: jobId }))
   const status = useJobStatus(slug, jobId)
   const update = useUpdateJob(slug, jobId)
@@ -70,7 +70,6 @@ function JobPage() {
   if (q.isError) return <PageError error={q.error} reset={() => void q.refetch()} />
   if (!q.data) return <FormSkeleton />
   const j = q.data
-  const names = new Map((contractors.data?.items ?? []).map((c) => [c.id, c.name]))
   const totalMin = (att.data?.items ?? []).filter((e) => e.status === 'approved').reduce((s, e) => s + e.worked_min, 0)
   const totalCost = (att.data?.items ?? []).filter((e) => e.status === 'approved').reduce((s, e) => s + e.cost + e.km_cost, 0)
 
@@ -116,6 +115,7 @@ function JobPage() {
       />
       <PageBody className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="grid content-start gap-4">
+          <JobContractorsCard slug={slug} job={j} canEdit={canEdit} attendance={att.data?.items ?? []} />
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Kalkulace a nabídky</CardTitle>
@@ -212,15 +212,6 @@ function JobPage() {
                 </p>
               )}
               {j.monthly_fee ? <p><span className="text-muted-foreground">Paušál: </span>{formatMoney(j.monthly_fee)} / měsíc</p> : null}
-              <div>
-                <p className="mb-1 text-muted-foreground">Dodavatelé:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {j.contractor_ids.length === 0 && <span className="text-muted-foreground">nikdo přiřazen</span>}
-                  {j.contractor_ids.map((id) => (
-                    <span key={id} className="rounded-full bg-muted px-2 py-0.5 text-xs">{names.get(id) ?? `#${id}`}</span>
-                  ))}
-                </div>
-              </div>
             </CardContent>
           </Card>
           <HistorySection subjectType="job" subjectId={j.id} />
@@ -234,11 +225,10 @@ function JobPage() {
 function EditJobDialog({ job, onClose, save }: { job: Job; onClose: () => void; save: ReturnType<typeof useUpdateJob> }) {
   const { slug } = useCurrentAccount()
   const client = useQuery(gardenQueries.client(slug, job.client_id))
-  const contractors = useQuery(gardenQueries.contractors(slug))
   const [f, setF] = useState({
     title: job.title, kind: job.kind as JobKind, site_id: job.site_id ? String(job.site_id) : '',
     planned_from: job.planned_from ?? '', planned_to: job.planned_to ?? '', note: job.note,
-    monthly_fee: job.monthly_fee ? String(job.monthly_fee / 100) : '', contractor_ids: job.contractor_ids,
+    monthly_fee: job.monthly_fee ? String(job.monthly_fee / 100) : '',
   })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value })
   const submit = () =>
@@ -246,7 +236,6 @@ function EditJobDialog({ job, onClose, save }: { job: Job; onClose: () => void; 
       {
         title: f.title, kind: f.kind, site_id: f.site_id ? Number(f.site_id) : 0, planned_from: f.planned_from, planned_to: f.planned_to,
         note: f.note, monthly_fee: f.monthly_fee ? Math.round(Number(f.monthly_fee.replace(',', '.')) * 100) : 0,
-        contractor_ids: f.contractor_ids,
       },
       { onSuccess: onClose },
     )
@@ -272,25 +261,6 @@ function EditJobDialog({ job, onClose, save }: { job: Job; onClose: () => void; 
         {f.kind === 'maintenance' && (
           <TextField label="Měsíční paušál (Kč)" name="monthly_fee" value={f.monthly_fee} onChange={set('monthly_fee')} inputMode="decimal" />
         )}
-        <fieldset className="grid gap-1.5 sm:col-span-2">
-          <legend className="mb-1 text-sm font-medium">Dodavatelé</legend>
-          <div className="flex flex-wrap gap-2">
-            {(contractors.data?.items ?? []).map((c) => {
-              const on = f.contractor_ids.includes(c.id)
-              return (
-                <Button
-                  key={c.id}
-                  type="button"
-                  size="sm"
-                  variant={on ? 'default' : 'outline'}
-                  onClick={() => setF({ ...f, contractor_ids: on ? f.contractor_ids.filter((x) => x !== c.id) : [...f.contractor_ids, c.id] })}
-                >
-                  {c.name}
-                </Button>
-              )
-            })}
-          </div>
-        </fieldset>
         <TextAreaField label="Poznámka" name="note" value={f.note} onChange={set('note')} className="sm:col-span-2" />
       </FormGrid>
     </ResponsiveDialog>
