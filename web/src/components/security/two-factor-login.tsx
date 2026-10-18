@@ -141,7 +141,7 @@ export function TwoFactorLogin({
           }}
           onComplete={submitCode}
           error={error ?? undefined}
-          description="Otevřete ověřovací aplikaci v telefonu a opište aktuální kód pro NanoFakturu."
+          description="Otevřete ověřovací aplikaci v telefonu a opište aktuální kód pro Zahradu."
           disabled={loginCode.isPending}
           autoFocus
         />

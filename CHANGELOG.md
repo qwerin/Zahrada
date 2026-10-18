@@ -9,7 +9,7 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 - Podporováno: odstavce, `###`, odrážky, **tučně**, *zvýraznění* (např. cesta v menu), `kód`, [odkazy](https://…). Nic dalšího.
 -->
 
-## 2026-10-18 · Kalkulace a nabídky, ceník a fotky ze zakázek
+## 2026-10-18 · Kalkulace a nabídky, ceník, fotky a AI asistent
 
 ### Kalkulace → nabídka
 - **Kalkulace u zakázky** — v detailu zakázky klikněte na *Nová kalkulace*. Položky přidáte z ceníku, vložíte z textu, nebo napíšete ručně. Průběžně uvidíte cenu bez DPH i s DPH, náklady, marži a odhad hodin práce.
@@ -22,6 +22,11 @@ Pravidla (viz CLAUDE.md → „Novinky“):
 
 ### Fotky
 - **Fotky ze zakázek** — vedoucí je přidává v detailu zakázky, dodavatel v *Moje práce* u každé své zakázky (*Fotky z práce*). Na telefonu se rovnou otevře fotoaparát. U fotky je vidět, kdo ji nahrál a kdy.
+
+### AI asistent (MCP)
+- **Připojení Claude k Zahradě** — v *Nastavení → API tokeny* najdete adresu pro připojení AI asistenta. V claude.ai ji přidáte jako vlastní konektor a jen se přihlásíte, token není potřeba. Claude Code a další klienti použijí API token, příkaz i s ním vám po vytvoření tokenu nabídneme.
+- **Co asistent umí** — najít zakázku, klienta nebo dodavatele, říct, kdo kolik odpracoval a co čeká na schválení, založit klienta se zahradou a zakázku, připravit kalkulaci z vašeho ceníku, doplnit ceník a zapsat docházku. Nic nemaže, neschvaluje, neposílá klientům a nemění nastavení. Smí jen to, co vy.
+- **Připojené aplikace** — uvidíte a kdykoli odpojíte v *Nastavení → API tokeny → Připojené aplikace*. Změna hesla je odpojí všechny.
 
 ### Ostatní
 - **Klienti na mobilu** — najdete je v menu *Více*. Nového klienta i se zahradou založíte rovnou při zakládání zakázky.

@@ -38,7 +38,7 @@ function AdminPage() {
     <>
       <PageHeader
         title="Správa instance"
-        description="Stav serveru, nastavení odesílání e-mailů a uživatelé celé instance NanoFaktury."
+        description="Stav serveru, nastavení odesílání e-mailů a uživatelé celé instance Zahrady."
         back={{ to: '/a/$slug/dashboard', params: { slug } }}
       />
       <PageBody className="max-w-5xl">

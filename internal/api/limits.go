@@ -19,39 +19,43 @@ import (
 // Keys: client IP (httpsec.InfoFrom; X-Forwarded-For only from trusted
 // proxies), e-mail, user or account ID.
 type limits struct {
-	loginIP    *ratelimit.Limiter // every login attempt per IP
-	loginEmail *ratelimit.Limiter // failed logins per e-mail
-	register   *ratelimit.Limiter // registrations per IP
-	invitation *ratelimit.Limiter // invitation lookups/accepts per IP
-	public     *ratelimit.Limiter // public invoice link requests per IP
-	password   *ratelimit.Limiter // wrong current passwords per user
-	mail       *ratelimit.Limiter // user-triggered e-mails per account
-	resetMail  *ratelimit.Limiter // password reset requests per IP and per e-mail
-	resetLink  *ratelimit.Limiter // password reset link lookups/confirms per IP
-	twoFactor  *ratelimit.Limiter // wrong second factors (login, TOTP enable) per user
-	verifyMail *ratelimit.Limiter // e-mail verification links sent per user
-	verifyLink *ratelimit.Limiter // verification link lookups/confirms per IP
-	emailTest  *ratelimit.Limiter // SMTP diagnostics (test e-mails) per instance admin
-	mcpAuth    *ratelimit.Limiter // invalid API tokens on the MCP endpoint per IP
+	loginIP       *ratelimit.Limiter // every login attempt per IP
+	loginEmail    *ratelimit.Limiter // failed logins per e-mail
+	register      *ratelimit.Limiter // registrations per IP
+	invitation    *ratelimit.Limiter // invitation lookups/accepts per IP
+	public        *ratelimit.Limiter // public invoice link requests per IP
+	password      *ratelimit.Limiter // wrong current passwords per user
+	mail          *ratelimit.Limiter // user-triggered e-mails per account
+	resetMail     *ratelimit.Limiter // password reset requests per IP and per e-mail
+	resetLink     *ratelimit.Limiter // password reset link lookups/confirms per IP
+	twoFactor     *ratelimit.Limiter // wrong second factors (login, TOTP enable) per user
+	verifyMail    *ratelimit.Limiter // e-mail verification links sent per user
+	verifyLink    *ratelimit.Limiter // verification link lookups/confirms per IP
+	emailTest     *ratelimit.Limiter // SMTP diagnostics (test e-mails) per instance admin
+	mcpAuth       *ratelimit.Limiter // invalid API tokens on the MCP endpoint per IP
+	oauthRegister *ratelimit.Limiter // OAuth client registrations per IP
+	oauthToken    *ratelimit.Limiter // failed OAuth token requests per IP
 
 }
 
 func newLimits(now func() time.Time) limits {
 	return limits{
-		loginIP:    ratelimit.New(20, 2, time.Minute, now),
-		loginEmail: ratelimit.New(5, 5, 15*time.Minute, now),
-		register:   ratelimit.New(5, 10, time.Hour, now),
-		invitation: ratelimit.New(20, 20, 10*time.Minute, now),
-		public:     ratelimit.New(60, 60, time.Minute, now),
-		password:   ratelimit.New(5, 5, 15*time.Minute, now),
-		mail:       ratelimit.New(50, 50, time.Hour, now),
-		resetMail:  ratelimit.New(5, 5, time.Hour, now),
-		resetLink:  ratelimit.New(20, 20, 10*time.Minute, now),
-		twoFactor:  ratelimit.New(10, 10, time.Hour, now),
-		verifyMail: ratelimit.New(3, 3, time.Hour, now),
-		verifyLink: ratelimit.New(20, 20, 10*time.Minute, now),
-		emailTest:  ratelimit.New(10, 10, time.Hour, now),
-		mcpAuth:    ratelimit.New(20, 20, 10*time.Minute, now),
+		loginIP:       ratelimit.New(20, 2, time.Minute, now),
+		loginEmail:    ratelimit.New(5, 5, 15*time.Minute, now),
+		register:      ratelimit.New(5, 10, time.Hour, now),
+		invitation:    ratelimit.New(20, 20, 10*time.Minute, now),
+		public:        ratelimit.New(60, 60, time.Minute, now),
+		password:      ratelimit.New(5, 5, 15*time.Minute, now),
+		mail:          ratelimit.New(50, 50, time.Hour, now),
+		resetMail:     ratelimit.New(5, 5, time.Hour, now),
+		resetLink:     ratelimit.New(20, 20, 10*time.Minute, now),
+		twoFactor:     ratelimit.New(10, 10, time.Hour, now),
+		verifyMail:    ratelimit.New(3, 3, time.Hour, now),
+		verifyLink:    ratelimit.New(20, 20, 10*time.Minute, now),
+		emailTest:     ratelimit.New(10, 10, time.Hour, now),
+		mcpAuth:       ratelimit.New(20, 20, 10*time.Minute, now),
+		oauthRegister: ratelimit.New(20, 20, time.Hour, now),
+		oauthToken:    ratelimit.New(20, 20, 10*time.Minute, now),
 	}
 }
 

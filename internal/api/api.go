@@ -138,6 +138,7 @@ func New(db *gorm.DB, cfg config.Config, deps Deps) (http.Handler, huma.API) {
 	s.registerAdmin(admin)
 	s.registerTwoFactor(public, authed)
 	s.registerTokens(authed)
+	s.registerOAuth(authed)
 	s.registerAccounts(authed, account)
 	s.registerAres(authed)
 	s.registerMembers(public, authed, account)
@@ -151,7 +152,10 @@ func New(db *gorm.DB, cfg config.Config, deps Deps) (http.Handler, huma.API) {
 	s.registerAttendance(account)
 	s.registerQuotes(account)
 
-	return router, api
+	router.Handle(mcpPath, s.mcpHandler(router, api))
+
+	// OAuth metadata, client registration and token endpoint skip CSRF (oauth.go)
+	return s.withOAuth(router, secOpts), api
 }
 
 // newServer applies the dependency defaults (shared by New and Jobs).

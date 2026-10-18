@@ -40,6 +40,10 @@ export type CreateTokenInput = RequestBody<'/api/auth/tokens', 'post'>
 export type LoginResult = ResponseBody<'/api/auth/login', 'post'>
 export type EmailVerificationInfo = ResponseBody<'/api/auth/verify-email', 'post'>
 
+export type OAuthConsent = ResponseBody<'/api/oauth/authorize', 'get'>
+export type OAuthDecision = RequestBody<'/api/oauth/authorize', 'post'>
+export type OAuthGrant = ListItem<ResponseBody<'/api/auth/oauth-grants', 'get'>>
+
 // --- Správa instance ---
 export type InstanceStatus = ResponseBody<'/api/admin/status', 'get'>
 export type EmailTestInput = RequestBody<'/api/admin/email-test', 'post'>

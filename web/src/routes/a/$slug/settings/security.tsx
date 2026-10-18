@@ -78,7 +78,7 @@ function SecuritySettings({ status }: { status: TwoFactorStatus }) {
         <div className="flex gap-3 text-sm text-muted-foreground">
           <LifeBuoyIcon className="mt-0.5 size-4 shrink-0" />
           <div className="flex min-w-0 flex-col gap-2">
-            <p>Obraťte se na správce této instance NanoFaktury. Dvoufázové ověření vám vypne příkazem:</p>
+            <p>Obraťte se na správce této instance Zahrady. Dvoufázové ověření vám vypne příkazem:</p>
             <code className="block rounded-lg bg-muted px-3 py-2 font-mono text-xs break-all text-foreground">
               nanofaktura user reset-2fa --email {user?.email ?? 'vas@email.cz'}
             </code>

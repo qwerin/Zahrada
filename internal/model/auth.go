@@ -99,12 +99,13 @@ type Session struct {
 }
 
 type APIToken struct {
-	ID         uint
-	UserID     uint   `gorm:"not null;index"`
-	Name       string `gorm:"not null"`
-	TokenHash  string `gorm:"not null;uniqueIndex"` // hex sha256 of the plaintext token
-	Prefix     string `gorm:"not null"`             // first 8 chars, for display
-	LastUsedAt *time.Time
-	ExpiresAt  *time.Time `gorm:"index"` // nil = never expires
-	CreatedAt  time.Time
+	ID           uint
+	UserID       uint   `gorm:"not null;index"`
+	Name         string `gorm:"not null"`
+	TokenHash    string `gorm:"not null;uniqueIndex"` // hex sha256 of the plaintext token
+	Prefix       string `gorm:"not null"`             // first 8 chars, for display
+	LastUsedAt   *time.Time
+	ExpiresAt    *time.Time `gorm:"index"` // nil = never expires
+	CreatedAt    time.Time
+	OAuthGrantID *uint `gorm:"column:oauth_grant_id;index"` // access token of a connected OAuth application (OAuthGrant)
 }
