@@ -9,6 +9,7 @@ import {
   ListTodoIcon,
   ServerCogIcon,
   ShieldCheckIcon,
+  SparklesIcon,
   TagsIcon,
   UserCogIcon,
   UserIcon,
@@ -24,6 +25,7 @@ export const moreNav = [
   { label: 'Ceník', to: '/a/$slug/price-items', icon: TagsIcon },
   { label: 'Úkoly', to: '/a/$slug/todos', icon: ListTodoIcon },
   { label: 'Aktivita', to: '/a/$slug/activity', icon: HistoryIcon },
+  { label: 'Novinky', to: '/a/$slug/news', icon: SparklesIcon },
 ] as const
 
 export const mainNav = [

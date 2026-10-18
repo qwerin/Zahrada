@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { BriefcaseIcon, ClockIcon, HardHatIcon, UsersIcon } from 'lucide-react'
+import { BriefcaseIcon, ClockIcon, HardHatIcon, SparklesIcon, UsersIcon } from 'lucide-react'
+import { useNews } from '@/hooks/use-news'
 import { gardenQueries } from '@/api/queries/garden'
 import { StatusPill } from '@/components/garden/form'
 import { currentMonth, formatMinutes, jobStatusLabels, jobStatusTone, monthLabel } from '@/components/garden/labels'
@@ -26,6 +27,7 @@ function Dashboard() {
   const inquiries = useQuery(gardenQueries.jobs(slug, { status: 'inquiry,quoted', per_page: 1 }))
   const atWork = useQuery(gardenQueries.attendance(slug, { status: 'open' }))
   const summary = useQuery(gardenQueries.summary(slug, month))
+  const news = useNews()
 
   return (
     <>
@@ -37,6 +39,19 @@ function Dashboard() {
         ]}
       />
       <PageBody className="grid gap-4">
+        {news.unseenCount > 0 && news.entries[0] && (
+          <Link
+            to="/a/$slug/news"
+            params={{ slug }}
+            className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm hover:bg-primary/10"
+          >
+            <SparklesIcon className="size-4 shrink-0 text-primary" />
+            <span className="min-w-0 flex-1 truncate">
+              <span className="font-medium">Novinky:</span> {news.entries[0].title}
+            </span>
+            <span className="text-primary">Zobrazit</span>
+          </Link>
+        )}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Tile icon={BriefcaseIcon} label="Rozpracované zakázky" value={jobs.data?.total ?? '–'} to="/a/$slug/jobs" />
           <Tile icon={UsersIcon} label="Poptávky a nabídky" value={inquiries.data?.total ?? '–'} to="/a/$slug/jobs" />

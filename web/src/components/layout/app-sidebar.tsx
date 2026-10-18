@@ -40,6 +40,7 @@ import { SidebarSearchButton } from '@/components/search/search-trigger'
 import { TodoCountBadge } from '@/components/todos/todo-count-badge'
 import { useCurrentAccount } from '@/hooks/use-current-account'
 import { roleLabel } from '@/lib/roles'
+import { NewsBadge } from '@/components/news/news-badge'
 import { adminNav, contractorNav, initials, mainNav } from './nav'
 import { useInstallAction } from '@/components/install/use-install-action'
 import { useLogoutAction } from './use-logout-action'
@@ -86,6 +87,7 @@ export function AppSidebar() {
                     <item.icon />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
+                  {item.to === '/a/$slug/news' && <NewsBadge variant="sidebar" />}
                   {item.to === '/a/$slug/todos' && <TodoCountBadge slug={slug} variant="sidebar" />}
                 </SidebarMenuItem>
               ))}

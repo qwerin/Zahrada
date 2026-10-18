@@ -33,6 +33,7 @@ import { Route as ASlugContractorsIndexRouteImport } from './routes/a/$slug/cont
 import { Route as ASlugContractorsContractorIdRouteImport } from './routes/a/$slug/contractors/$contractorId'
 import { Route as ASlugJobsIndexRouteImport } from './routes/a/$slug/jobs/index'
 import { Route as ASlugJobsJobIdRouteImport } from './routes/a/$slug/jobs/$jobId'
+import { Route as ASlugNewsIndexRouteImport } from './routes/a/$slug/news/index'
 import { Route as ASlugQuotesQuoteIdRouteImport } from './routes/a/$slug/quotes/$quoteId'
 import { Route as ASlugSettingsIndexRouteImport } from './routes/a/$slug/settings/index'
 import { Route as ASlugSettingsCompanyRouteImport } from './routes/a/$slug/settings/company'
@@ -164,6 +165,11 @@ const ASlugJobsJobIdRoute = ASlugJobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => ASlugRouteRoute,
 } as any)
+const ASlugNewsIndexRoute = ASlugNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => ASlugRouteRoute,
+} as any)
 const ASlugQuotesQuoteIdRoute = ASlugQuotesQuoteIdRouteImport.update({
   id: '/quotes/$quoteId',
   path: '/quotes/$quoteId',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/a/$slug/clients/': typeof ASlugClientsIndexRoute
   '/a/$slug/contractors/': typeof ASlugContractorsIndexRoute
   '/a/$slug/jobs/': typeof ASlugJobsIndexRoute
+  '/a/$slug/news/': typeof ASlugNewsIndexRoute
   '/a/$slug/settings/': typeof ASlugSettingsIndexRoute
   '/a/$slug/todos/': typeof ASlugTodosIndexRoute
 }
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/a/$slug/clients': typeof ASlugClientsIndexRoute
   '/a/$slug/contractors': typeof ASlugContractorsIndexRoute
   '/a/$slug/jobs': typeof ASlugJobsIndexRoute
+  '/a/$slug/news': typeof ASlugNewsIndexRoute
   '/a/$slug/settings': typeof ASlugSettingsIndexRoute
   '/a/$slug/todos': typeof ASlugTodosIndexRoute
 }
@@ -311,6 +319,7 @@ export interface FileRoutesById {
   '/a/$slug/clients/': typeof ASlugClientsIndexRoute
   '/a/$slug/contractors/': typeof ASlugContractorsIndexRoute
   '/a/$slug/jobs/': typeof ASlugJobsIndexRoute
+  '/a/$slug/news/': typeof ASlugNewsIndexRoute
   '/a/$slug/settings/': typeof ASlugSettingsIndexRoute
   '/a/$slug/todos/': typeof ASlugTodosIndexRoute
 }
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
     | '/a/$slug/clients/'
     | '/a/$slug/contractors/'
     | '/a/$slug/jobs/'
+    | '/a/$slug/news/'
     | '/a/$slug/settings/'
     | '/a/$slug/todos/'
   fileRoutesByTo: FileRoutesByTo
@@ -381,6 +391,7 @@ export interface FileRouteTypes {
     | '/a/$slug/clients'
     | '/a/$slug/contractors'
     | '/a/$slug/jobs'
+    | '/a/$slug/news'
     | '/a/$slug/settings'
     | '/a/$slug/todos'
   id:
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/a/$slug/clients/'
     | '/a/$slug/contractors/'
     | '/a/$slug/jobs/'
+    | '/a/$slug/news/'
     | '/a/$slug/settings/'
     | '/a/$slug/todos/'
   fileRoutesById: FileRoutesById
@@ -603,6 +615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ASlugJobsJobIdRouteImport
       parentRoute: typeof ASlugRouteRoute
     }
+    '/a/$slug/news/': {
+      id: '/a/$slug/news/'
+      path: '/news'
+      fullPath: '/a/$slug/news/'
+      preLoaderRoute: typeof ASlugNewsIndexRouteImport
+      parentRoute: typeof ASlugRouteRoute
+    }
     '/a/$slug/quotes/$quoteId': {
       id: '/a/$slug/quotes/$quoteId'
       path: '/quotes/$quoteId'
@@ -707,6 +726,7 @@ interface ASlugRouteRouteChildren {
   ASlugClientsIndexRoute: typeof ASlugClientsIndexRoute
   ASlugContractorsIndexRoute: typeof ASlugContractorsIndexRoute
   ASlugJobsIndexRoute: typeof ASlugJobsIndexRoute
+  ASlugNewsIndexRoute: typeof ASlugNewsIndexRoute
   ASlugTodosIndexRoute: typeof ASlugTodosIndexRoute
 }
 
@@ -727,6 +747,7 @@ const ASlugRouteRouteChildren: ASlugRouteRouteChildren = {
   ASlugClientsIndexRoute: ASlugClientsIndexRoute,
   ASlugContractorsIndexRoute: ASlugContractorsIndexRoute,
   ASlugJobsIndexRoute: ASlugJobsIndexRoute,
+  ASlugNewsIndexRoute: ASlugNewsIndexRoute,
   ASlugTodosIndexRoute: ASlugTodosIndexRoute,
 }
 

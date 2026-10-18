@@ -60,6 +60,14 @@ Money `int64` haléře; quantities decimal string in API / `*_milli` in DB; perc
 `YYYY-MM-DD`; every record has `account_id` and every query is scoped (tenant-isolation test is mandatory).
 Errors problem+json with machine-readable `code`. Details: SPEC §2 and NanoFaktura's CLAUDE.md.
 
+## Novinky (CHANGELOG.md)
+
+`CHANGELOG.md` in the repo root is shown in the app (*Novinky*, `web/src/hooks/use-news.ts`, parser
+`web/src/lib/changelog.ts`) and is copied into the Docker frontend stage. Every user-visible change gets
+an entry **in the same commit**: newest first, `## YYYY-MM-DD · Krátký název` (one entry per date —
+extend today's entry instead of adding a second one), bullets `- **Co** — k čemu je to dobré.`, Czech,
+written for users (no technical jargon). Internal changes don't go there.
+
 ## Deploy
 
 CI (`.github/workflows/ci.yml`) pushes `ghcr.io/qwerin/zahrada:main` on every push to main and
