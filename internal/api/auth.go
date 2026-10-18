@@ -32,7 +32,7 @@ type User struct {
 type MeAccount struct {
 	Slug string `json:"slug"`
 	Name string `json:"name"`
-	Role string `json:"role" enum:"owner,admin,accountant,member"`
+	Role string `json:"role" enum:"owner,admin,accountant,member,contractor"`
 }
 
 type Me struct {

@@ -1,8 +1,76 @@
-import { defineConfig } from 'vite'
+/// <reference types="vitest/config" />
+import path from 'node:path'
+import tailwindcss from '@tailwindcss/vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
-// Vývoj: `make dev-backend` (:8080) + `make dev-frontend` (:5173, /api se proxuje na backend)
 export default defineConfig({
-  plugins: [react()],
-  server: { proxy: { '/api': 'http://localhost:8080' } },
+  plugins: [
+    // Musí být před react(): generuje src/routeTree.gen.ts a dělí routy do chunků.
+    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png'],
+      manifest: {
+        name: 'Zahrada',
+        short_name: 'Zahrada',
+        description: 'Zakázky, údržba zahrad a docházka dodavatelů.',
+        lang: 'cs',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        orientation: 'any',
+        theme_color: '#3f6212',
+        background_color: '#fbfbfd',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        // Jen app shell. API se nikdy necachuje (bez offline zápisu — SPEC §1).
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
+      },
+    }),
+  ],
+  resolve: {
+    alias: { '@': path.resolve(import.meta.dirname, './src') },
+  },
+  server: {
+    // CHANGELOG.md (sekce Novinky) leží v kořeni repa, mimo web/
+    fs: { allow: ['..'] },
+    proxy: {
+      '/api': { target: 'http://localhost:8080' },
+    },
+  },
+  test: {
+    projects: [
+      {
+        // čistá logika (lib/, výpočty) — rychlé, bez DOM
+        extends: true,
+        test: { name: 'unit', include: ['src/**/*.test.ts'], environment: 'node' },
+      },
+      {
+        // komponentové testy: jsdom + Testing Library + msw (src/test/setup.ts)
+        extends: true,
+        test: {
+          name: 'component',
+          include: ['src/**/*.test.tsx'],
+          environment: 'jsdom',
+          environmentOptions: { jsdom: { url: 'http://localhost:3000/' } },
+          // openapi-fetch v Node potřebuje absolutní URL; msw handlery míří na stejný origin (src/test/server.ts)
+          env: { VITE_API_BASE_URL: 'http://localhost:3000' },
+          setupFiles: ['src/test/setup.ts'],
+          testTimeout: 15_000,
+        },
+      },
+    ],
+  },
 })
